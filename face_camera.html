@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>tracking.js - face with camera</title>
+  <link rel="stylesheet" href="trackingjs/examples/assets/demo.css">
+
+  <script src="trackingjs/build/tracking-min.js"></script>
+  <script src="trackingjs/build/data/face-min.js"></script>
+  <script src="./dat.gui.min.js"></script>
+  <script src="trackingjs/examples/assets/stats.min.js"></script>
+
+  <style>
+  video, canvas {
+    margin-left: 20px;
+    margin-top: 650px;
+    position: absolute;
+  }
+  </style>
+</head>
+<body>
+  <div class="demo-title">
+    <p> interactive graphical test </p>
+  </div>
+
+     <video id="video" width="240" height="200" preload autoplay loop muted></video>
+      <canvas id="canvas" width="240" height="200"></canvas>
+
+
+  <script>
+    window.onload = function() {
+      var video = document.getElementById('video');
+      var canvas = document.getElementById('canvas');
+      var context = canvas.getContext('2d');
+	  var x_avg = 0, y_avg = 0, count = 0;
+	  var time;
+      var tracker = new tracking.ObjectTracker('face');
+      tracker.setInitialScale(1);
+      tracker.setStepSize(1);
+      tracker.setEdgesDensity(0.1);
+
+      tracking.track('#video', tracker, { camera: true });
+
+      tracker.on('track', function(event) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+
+        event.data.forEach(function(rect) {
+		  //console.log("rect x: " + rect.x + "; rect y: " + rect.y);
+		  if(count == 0){
+			x_avg = rect.x;
+			y_avg = rect.y;
+			time = new Date().getTime();
+		  }
+		  
+		  count++;
+		  console.log(count);
+		  
+		  if(count >= 2){
+			count = 0;
+			x_avg = Math.abs(x_avg - rect.x)/ (new Date().getTime() - time);
+			y_avg = Math.abs(y_avg - rect.y)/ (new Date().getTime() - time);
+			console.log("x avg: " + x_avg * 100 + "; y avg: " + y_avg * 100 + ";");
+		  }
+		  
+          
+		  context.strokeStyle = '#a64ceb';
+          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+          context.font = '11px Helvetica';
+          context.fillStyle = "#fff";
+          context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+          context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+        });
+      });
+
+      /*
+	  var gui = new dat.GUI();
+      gui.add(tracker, 'edgesDensity', 0.1, 0.5).step(0.01);
+      gui.add(tracker, 'initialScale', 1.0, 10.0).step(0.1);
+      gui.add(tracker, 'stepSize', 1, 5).step(0.1);
+	  */
+    };
+  </script>
+
+</body>
+</html>

@@ -1,15 +1,25 @@
 # tracker_haiwei
 
-work progress
+1/25 
+- working on 1 degree of freedom: tracker plays music when threshold is reached
 
-1/10 - 1/13	overview of facetacker tools, audio tools and graphic tools
-	- web development decided to be the best platform for this project
-	- facetracking: trackingjs.com
-	- audio control: HTML5 <audio> element
 
-problem with facetracking
-- motion detection is weak
-- only track faces, but users are likely to move other parts of body instead of head
+1/21 -22
+dealing with audio (2-4h). References:
+ - http://chimera.labs.oreilly.com/books/1234000001552/ch02.html
+ - http://www.html5rocks.com/en/tutorials/webaudio/intro/
+ - https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
+ - http://stackoverflow.com/questions/2839844/best-practice-for-inserting-large-chunks-of-html-into-elements-with-javascript 
+
+implemented play, pause, stop function
+
+
+1/20
+
+references
+ - integrating tracking api to a flashcanvas example
+ - http://taligarsiel.com/Projects/howbrowserswork1.htm
+ - http://www.html5rocks.com/en/tutorials/async/deferred/
 
 1/15
     - simple code to track face moving speed with trackingjs 1h
@@ -25,23 +35,13 @@ a good example of interactive webcam motion detection here:
 http://www.soundstep.com/blog/2012/03/22/javascript-motion-detection/
 
 
-1/20
+1/10 - 1/13	overview of facetacker tools, audio tools and graphic tools
+	- web development decided to be the best platform for this project
+	- facetracking: trackingjs.com
+	- audio control: HTML5 <audio> element
 
-references
- - integrating tracking api to a flashcanvas example
- - http://taligarsiel.com/Projects/howbrowserswork1.htm
- - http://www.html5rocks.com/en/tutorials/async/deferred/
-
-1/21 -22
-dealing with audio (2-4h). References:
- - http://chimera.labs.oreilly.com/books/1234000001552/ch02.html
- - http://www.html5rocks.com/en/tutorials/webaudio/intro/
- - https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
- - http://stackoverflow.com/questions/2839844/best-practice-for-inserting-large-chunks-of-html-into-elements-with-javascript 
-
-implemented play, pause, stop function
-
-1/25 
-- working on 1 degree of freedom: tracker plays music when threshold is reached
+problem with facetracking
+- motion detection is weak
+- only track faces, but users are likely to move other parts of body instead of head
 
 

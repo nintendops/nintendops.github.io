@@ -1,47 +1,52 @@
-# tracker_haiwei
+oflow.js - optical flow detection in JavaScript
+===============================================
+I made this little toy just for fun when I was traveling and had really long flight.
+The library allows you to detect optical flow in a video.
 
-1/25 
-- working on 1 degree of freedom: tracker plays music when threshold is reached
+Here is an [optical flow detection demo](http://anvaka.github.com/oflow/demo/raw/index.html)
+which lets you to control a ball and see movements in each zone of the video.
 
+And this little [Ping Pong game](http://anvaka.github.com/oflow/demo/pingpong/index.html)
+was also created on a plane. Right bar is controlled by the webcamera. Move your
+hand slowly up and down, to change the position of the right bar. Just move your
+hands slowly do it gradually. Left bar is controlled by computer.
 
-1/21 -22
-dealing with audio (2-4h). References:
- - http://chimera.labs.oreilly.com/books/1234000001552/ch02.html
- - http://www.html5rocks.com/en/tutorials/webaudio/intro/
- - https://developer.mozilla.org/en-US/docs/Web/API/AudioBufferSourceNode
- - http://stackoverflow.com/questions/2839844/best-practice-for-inserting-large-chunks-of-html-into-elements-with-javascript 
+I didn't have time to do the 'tutorial' or proper error handling, I'm sorry if
+it wouldn't work for you. Please [let me know](mailto:anvaka@gmail.com).
 
-implemented play, pause, stop function
+Usage
+-----
+Include [/dist/oflow.js](https://github.com/anvaka/oflow/blob/master/dist/oflow.js) into your page.
 
+To detect flow from the webcamera:
 
-1/20
+```javascript
+var flow = new oflow.WebCamFlow();
+// Every time when optical flow is calculated
+// call the passed in callback:
+flow.onCalculated(function (direction) {
+    // direction is an object which describes current flow:
+    // direction.u, direction.v {floats} general flow vector
+    // direction.zones {Array} is a collection of flowZones.
+    // Each flow zone describes optical flow direction inside of it.
+    // flowZone : {
+    //  x, y // zone center
+    //  u, v // vector of flow in the zone
+    // }
+});
 
-references
- - integrating tracking api to a flashcanvas example
- - http://taligarsiel.com/Projects/howbrowserswork1.htm
- - http://www.html5rocks.com/en/tutorials/async/deferred/
+// Starts capturing the flow from webcamera:
+flow.startCapture();
 
-1/15
-    - simple code to track face moving speed with trackingjs 1h
-    - looking into more tools 1h
+// once you are done capturing call
+flow.stopCapture();
+```
 
-potential tools to use
-- motion detection library: https://github.com/ReallyGood/js-motion-detection
-- html5 audio tool: http://www.html5rocks.com/en/tutorials/webaudio/intro/
-- interactive graphics: https://code.google.com/p/flashcanvas/wiki/Examples
-- more graphics: http://threejs.org/examples/#webgl_lines_colors
+To detect flow from `<video>` element:
 
-a good example of interactive webcam motion detection here:
-http://www.soundstep.com/blog/2012/03/22/javascript-motion-detection/
+```javascript
+var flow = new oflow.VideoFlow(videoDomElement);
+// the remaining API is the same as in the WebCamFlow exapmle above.
+```
 
-
-1/10 - 1/13	overview of facetacker tools, audio tools and graphic tools
-	- web development decided to be the best platform for this project
-	- facetracking: trackingjs.com
-	- audio control: HTML5 <audio> element
-
-problem with facetracking
-- motion detection is weak
-- only track faces, but users are likely to move other parts of body instead of head
-
-
+```videoDomElement``` is required argument.

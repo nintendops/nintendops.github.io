@@ -1,6 +1,7 @@
 var audio_context;
 var isPlaying = false;
 var source = null;
+var gainNode = null;
 var audio_response = null;
 var audiobuffer = null;
 var p_time = 0;
@@ -56,9 +57,19 @@ function play(){
 		alert('error in retrieving the audio');
 		return;
 	}
+	if (!audio_context.createGain){
+		audio_context.createGain = audio_context.createGainNode;
+	}
+	this.gainNode = audio_context.createGain();
 	source = audio_context.createBufferSource();
 	source.buffer = audiobuffer;
-	source.connect(audio_context.destination);
+	
+	// Connect source to a gain node
+	source.connect(this.gainNode);
+	// Connect gain node to destination
+	this.gainNode.connect(audio_context.destination);
+	// Start playback in a loop
+	source.loop = true;
 	
 	if(p_time == 0){
 		p_time = audio_context.currentTime;
@@ -71,4 +82,13 @@ function play(){
 	}
 	
 	isPlaying = true;
+}
+
+function change_volumn(element){
+ if(!this.gainNode){
+	 return;
+ }
+  var volume = element.value;
+  var fraction = parseInt(volume) / parseInt(element.max);
+  this.gainNode.gain.value = 0.9*fraction  + 0.1;
 }

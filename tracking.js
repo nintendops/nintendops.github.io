@@ -11,8 +11,8 @@ var h=0;
 var x=0;
 var y=0;
 var z=0;
-var x_threshold = 600;
-var y_threshold = 500;
+var x_threshold = 800;
+var y_threshold = 400;
 var star_color_ratio=0;
 var star_x_save,star_y_save;
 var star_ratio=256;
@@ -115,20 +115,20 @@ function move(evt)
 function flow_move(u,v){
 	w=parseInt((url_a.indexOf('w=')!=-1)?url_a.substring(url_a.indexOf('w=')+2,((url_a.substring(url_a.indexOf('w=')+2,url_a.length)).indexOf('&')!=-1)?url_a.indexOf('w=')+2+(url_a.substring(url_a.indexOf('w=')+2,url_a.length)).indexOf('&'):url_a.length):get_screen_size()[0]);
 	h=parseInt((url_a.indexOf('h=')!=-1)?url_a.substring(url_a.indexOf('h=')+2,((url_a.substring(url_a.indexOf('h=')+2,url_a.length)).indexOf('&')!=-1)?url_a.indexOf('h=')+2+(url_a.substring(url_a.indexOf('h=')+2,url_a.length)).indexOf('&'):url_a.length):get_screen_size()[1]);
-		
-	if	( (x_offset > 0 && cursor_x > x_threshold) || 
-		  (x_offset < 0 && cursor_x < x_threshold* -1)){
+	var x_offset = u*w/32;
+	var y_offset = v*h/32;
+	if	( (x_offset < 0 && cursor_x > x_threshold+w/2) || 
+		  (x_offset > 0 && cursor_x < (x_threshold* -1)+w/2)){
 		var x_offset = 0;
+	}
+	if	( (y_offset < 0 && cursor_y > y_threshold+h/2) || 
+		  (y_offset > 0 && cursor_y < (y_threshold* -1)+h/2)){
 		var y_offset = 0;
-		
-	}else{	
-		var x_offset = u*w/32;
-		var y_offset = v*h/32;
 	}
 	cursor_x -= x_offset;
 	cursor_y -= y_offset;
-	//console.log("x = " + cursor_x);
-	//console.log("y = " + cursor_y);
+	console.log("x = " + cursor_x);
+	console.log("y = " + cursor_y);
 	
 }
 

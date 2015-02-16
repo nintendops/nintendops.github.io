@@ -1,0 +1,28 @@
+{
+  "name": "sonantx",
+  "version": "0.3.0",
+  "homepage": "https://github.com/nicolas-van/sonant-x",
+  "authors": [
+    "Nicolas Vanhoren <nicolas.vanhoren@gmail.com>"
+  ],
+  "license": "zlib",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery": "~2.1.1"
+  },
+  "_release": "0.3.0",
+  "_resolution": {
+    "type": "version",
+    "tag": "0.3.0",
+    "commit": "10c0e09d8aec2ddc25e4b60996ec6b16bf21a862"
+  },
+  "_source": "git://github.com/nicolas-van/sonant-x.git",
+  "_target": "~0.3.0",
+  "_originalSource": "sonantx"
+}

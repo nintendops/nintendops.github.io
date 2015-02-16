@@ -17,7 +17,7 @@
 1/25 
 - integrating audio, animation and tracker
 - working on 1 degree of freedom: tracker plays music when threshold is reached
-
+Tracker for my COMP393
 
 1/21 -22
 dealing with audio (2-4h). References:

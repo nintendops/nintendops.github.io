@@ -34,10 +34,21 @@
 	video { margin-left: 10px;    margin-top: 50px;   position: absolute; }	
 	</style>
 	<!--[if lt IE 9]><script type="text/javascript" src="../../../bin/flashcanvas.js"></script><![endif]-->
-  <script type="text/javascript" src="./dist/oflow.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script type="text/javascript" src="./dist/oflow.js"></script>
  <script src="./dat.gui.min.js"></script>
  <script src="./audio.js"></script>
+ <script src="./synthesizer.js"></script>
  <script src="./tracking.js"></script>
+
+    <!-- synthesizer lib>  <!-->
+    <script type="text/javascript" src="components/sonantx/sonantx.js"></script>
+    <script type="text/javascript" src="components/jquery/dist/jquery.js"></script>
+    <script type="text/javascript" src="components/lz-string-bower/lz-string.js"></script>
+    <script type="text/javascript" src="components/uri.js/src/URI.js"></script>
+    <script type="text/javascript" src="components/underscore/underscore.js"></script>
+
+
 <script type="text/javascript">
 
 
@@ -76,11 +87,18 @@ function key_manager(evt)
 <button type="button" name="pauseaudio" onclick="pause_audio(false)">Pause!</button>
 <button type="button" name="stop" onclick="pause_audio(true)">Stop!</button>
 <button type="button" name="track" onclick="start_tracking()">Track!</button>
-<p>
-<button type="button" style="position:absolute; top: 60px" name="anim" onclick="start()">Start Animation!</button>
+    <p>
+        <input id="audio_range" style="position:relative; top: 20px" type="range" oninput="change_volumn(this);" value="100" max="100" min="0">
+    </p>
+
+    <p>
+    <button type="button" style="position:relative; top: 40px" name="sync_play" onclick="run_syn()"> Play synthesizer!</button>
+    <button type="button" style="position:relative; top: 40px"name="sync_stop" onclick="stopPlaying()"> Stop synthesizer</button>
+    <button type="button" style="position:relative; top: 40px"name="sync_change" onclick="play_syn(&quot;preload2.json&quot;)"> Change tone 1</button>
+    <button type="button" style="position:relative; top: 40px"name="sync_change" onclick="play_syn(&quot;preload3.json&quot;)"> Change tone 2</button>
 </p>
 <p>
-<input id="audio_range" style="position:absolute; top: 120px" type="range" oninput="change_volumn(this);" value="100" max="100" min="0">
+<button type="button" style="position:relative; top: 60px" name="anim" onclick="start()">Start Animation!</button>
 </p>
 
 

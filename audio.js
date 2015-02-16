@@ -1,11 +1,14 @@
 var audio_context;
 var isPlaying = false;
-var source = null;
 var gainNode = null;
 var audio_response = null;
 var audiobuffer = null;
+var audiobuffer2 = null;
+var as1 = null;
+var as2 = null;
 var p_time = 0;
-var url = "./Myke_Ptyson.mp3";
+var url = "./cross1.wav";
+var url2 = "./cross2.wav";
 window.addEventListener('load',audio_init,false);
 
 function audio_init(){
@@ -18,11 +21,23 @@ function audio_init(){
 
 		// Decode asynchronously
 		request.onload = function() {
-			audio_context.decodeAudioData(request.response, function(buffer) {		
-				audiobuffer = buffer;			
+			audio_context.decodeAudioData(request.response, function(buffer) {
+				audiobuffer = buffer;
 			});
 		}
 		request.send();
+
+        var another_request = new XMLHttpRequest();
+        another_request.open('GET', url2, true);
+        another_request.responseType = 'arraybuffer';
+
+        // Decode asynchronously
+        another_request.onload = function() {
+            audio_context.decodeAudioData(another_request.response, function(buffer) {
+                audiobuffer2 = buffer;
+            });
+        }
+        another_request.send();
 	}
 	catch(e){
 		alert('Web Audio API not supported in this stupid browser');
@@ -31,17 +46,19 @@ function audio_init(){
 
 
 function pause_audio(isStop){
-	if(!audiobuffer || !audio_context){
+	if(!audio_context){
 		alert('error in retrieving the audio');
 		return;
 	}
 	
-	if(!source || p_time == 0){
+	if(!as1 || !as2 || p_time == 0){
 		alert("no audio is playing");
 		return;
 	}
 	
-	source.stop();
+	as1.source.stop();
+    as2.source.stop();
+
 	if(isStop){
 		p_time = 0;
 	}else{
@@ -52,32 +69,43 @@ function pause_audio(isStop){
 	isPlaying = false;
 }
 
+function createSource(buffer) {
+    var source = audio_context.createBufferSource();
+    var gainNode = audio_context.createGain ? audio_context.createGain() : audio_context.createGainNode();
+    source.buffer = buffer;
+    // Turn on looping
+    source.loop = true;
+    // Connect source to gain.
+    source.connect(gainNode);
+    // Connect gain to destination.
+    gainNode.connect(audio_context.destination);
+
+    return {
+        source: source,
+        gainNode: gainNode
+    };
+}
+
+
+
 function play(){
 	if(!audiobuffer || !audio_context){
 		alert('error in retrieving the audio');
 		return;
 	}
-	if (!audio_context.createGain){
-		audio_context.createGain = audio_context.createGainNode;
-	}
-	this.gainNode = audio_context.createGain();
-	source = audio_context.createBufferSource();
-	source.buffer = audiobuffer;
-	
-	// Connect source to a gain node
-	source.connect(this.gainNode);
-	// Connect gain node to destination
-	this.gainNode.connect(audio_context.destination);
-	// Start playback in a loop
-	source.loop = true;
-	
+
+    as1 = createSource(audiobuffer);
+    as2 = createSource(audiobuffer2);
+    as2.gainNode.gain.value = 0;
 	if(p_time == 0){
 		p_time = audio_context.currentTime;
 		console.log("p_time: " + p_time + ";");
-		source.start(0);
+		as1.source.start(0);
+        as2.source.start(0);
 	}else{
 		console.log("p_time: " + p_time + ";");
-		source.start(0,p_time);
+		as1.source.start(0,p_time);
+        as2.source.start(0,p_time);
 		p_time = audio_context.currentTime - p_time;
 	}
 	
@@ -85,10 +113,11 @@ function play(){
 }
 
 function change_volumn(element){
- if(!this.gainNode){
+ if(!as1.gainNode){
 	 return;
  }
   var volume = element.value;
   var fraction = parseInt(volume) / parseInt(element.max);
-  this.gainNode.gain.value = 0.9*fraction  + 0.1;
+  as1.gainNode.gain.value = fraction;
+  as2.gainNode.gain.value = 1 - fraction;
 }

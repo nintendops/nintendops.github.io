@@ -127,8 +127,8 @@ function flow_move(u,v){
 	}
 	cursor_x -= x_offset;
 	cursor_y -= y_offset;
-	console.log("x = " + cursor_x);
-	console.log("y = " + cursor_y);
+	//console.log("x = " + cursor_x);
+	//console.log("y = " + cursor_y);
 	
 }
 
@@ -232,7 +232,7 @@ function start_tracking(){
 		}
 		counter++;
 		
-		audio_range.value -= direction.u * 4;
+		audio_range.value -= direction.u * 2;
 		change_volumn(audio_range);
 		if(started){
 			flow_move(direction.u,direction.v);

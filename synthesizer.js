@@ -199,9 +199,6 @@ function PlayIfReady(mBuffer) {
        setTimeout(function () {
             timer1 = audio_context.currentTime;
             console.log(offset);
-           if(mreset){
-                stopPlaying();
-            }
             mAudio = mContext.createBufferSource();
            mAudio.buffer = mBuffer;
            mLength = mBuffer.duration;

@@ -10,7 +10,7 @@ var mLength = null;
 var timer1 = null;
 var mreset = true;
 
-var play_syn = function (reset, url) {
+var play_syn = function (url) {
     mreset = reset;
     if (audio_track) {
         // do something if tracker is on

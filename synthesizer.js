@@ -8,9 +8,10 @@ var audio_track = null;
 var mAudio = null;
 var mLength = null;
 var timer1 = null;
+var mreset = true;
 
-var play_syn = function (url) {
-
+var play_syn = function (reset, url) {
+    mreset = reset;
     if (audio_track) {
         // do something if tracker is on
     } else {
@@ -199,7 +200,9 @@ function PlayIfReady(mBuffer) {
        setTimeout(function () {
             timer1 = audio_context.currentTime;
             console.log(offset);
-            stopPlaying();
+           if(mreset){
+                stopPlaying();
+            }
             mAudio = mContext.createBufferSource();
            mAudio.buffer = mBuffer;
            mLength = mBuffer.duration;

@@ -8,33 +8,49 @@ var audio_track = null;
 var mAudio = null;
 var mLength = null;
 var timer1 = null;
-
+var mreset = true;
+var SYN_STATE_1 = false;
+var SYN_STATE_2 = false;
+var SYN_START = false;
 
 var play_syn = function (url) {
     if (audio_track) {
         // do something if tracker is on
-    } else {
-        $(function () {
-            $.getJSON(url, function (data) {
-                var d1 = new Date();
-                var mSong = data;
-                convertSong(mSong);
-                var opts = {
-                    firstCol: 0,
-                    lastCol: 0,
-                    numSeconds: (32) * mSong.rowLen / 44100
-                };
-                generateWave(mSong, opts);
-                var d2 = new Date();
-                console.log("generation time is " + (d2.getTime() - d1.getTime()) / 1000 + "s");
-            })
-        });
     }
-};
+    if(!SYN_START){return;}
 
+    switch(url){
+        case "preload.json":
+            SYN_STATE_1 = true;
+            SYN_STATE_2 = false;
+            break;
+        case "preload2.json":
+            SYN_STATE_2 = true;
+            SYN_STATE_1 = false;
+            break;
+    }
+
+    $(function () {
+        $.getJSON(url, function (data) {
+            var d1 = new Date();
+            var mSong = data;
+            convertSong(mSong);
+            var opts = {
+                firstCol: 0,
+                lastCol: 0,
+                numSeconds: (32) * mSong.rowLen / 44100
+            };
+            generateWave(mSong, opts);
+            var d2 = new Date();
+            console.log("generation time is " + (d2.getTime() - d1.getTime()) / 1000 + "s");
+        })
+    });
+
+};
 
 // initilization here
 function run_syn() {
+    SYN_START = true;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     mContext = new AudioContext();
     play_syn("preload.json");
@@ -196,25 +212,28 @@ function PlayIfReady(mBuffer) {
     if (mAudio && timer1 && mLength) {
         var timer2 = audio_context.currentTime;
         var offset = mLength - ((timer2 - timer1) % mLength);
-       setTimeout(function () {
+        setTimeout(function () {
             timer1 = audio_context.currentTime;
             console.log(offset);
+            if (mreset) {
+                stopPlaying();
+            }
             mAudio = mContext.createBufferSource();
-           mAudio.buffer = mBuffer;
-           mLength = mBuffer.duration;
-           if (!mContext.createGain) {
-               mContext.createGain = mContext.createGainNode;
-           }
-           this.gainNode = mContext.createGain();
-           // Connect source to a gain node
-           mAudio.connect(this.gainNode);
-           // Connect gain node to destination
-           this.gainNode.connect(mContext.destination);
-           // Start playback in a loop
-           mAudio.loop = true;
-           mAudio.start();
-           timer1 = audio_context.currentTime;
-       }, offset * 1000);
+            mAudio.buffer = mBuffer;
+            mLength = mBuffer.duration;
+            if (!mContext.createGain) {
+                mContext.createGain = mContext.createGainNode;
+            }
+            this.gainNode = mContext.createGain();
+            // Connect source to a gain node
+            mAudio.connect(this.gainNode);
+            // Connect gain node to destination
+            this.gainNode.connect(mContext.destination);
+            // Start playback in a loop
+            mAudio.loop = true;
+            mAudio.start();
+            timer1 = audio_context.currentTime;
+        }, offset * 1000);
     } else {
         mAudio = mContext.createBufferSource();
         mAudio.buffer = mBuffer;

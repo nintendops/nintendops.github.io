@@ -113,7 +113,7 @@ function play(){
 }
 
 function change_volumn(element){
- if(!as1.gainNode){
+ if(!as1){
 	 return;
  }
   var volume = element.value;

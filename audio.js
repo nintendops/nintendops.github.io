@@ -1,123 +1,89 @@
-var audio_context;
-var isPlaying = false;
-var gainNode = null;
-var audio_response = null;
-var audiobuffer = null;
-var audiobuffer2 = null;
-var as1 = null;
-var as2 = null;
-var p_time = 0;
-var url = "./cross1.wav";
-var url2 = "./cross2.wav";
-window.addEventListener('load',audio_init,false);
+var MML_DATA, app, scales, isPlaying, ins, countscale;
 
-function audio_init(){
-	try{
-		window.AudioContext = window.AudioContext || window.webkitAudioContext;
-		audio_context = new AudioContext();
-		var request = new XMLHttpRequest();
-		request.open('GET', url, true);
-		request.responseType = 'arraybuffer';
+window.addEventListener('load', audio_init, false);
 
-		// Decode asynchronously
-		request.onload = function() {
-			audio_context.decodeAudioData(request.response, function(buffer) {
-				audiobuffer = buffer;
-			});
-		}
-		request.send();
 
-        var another_request = new XMLHttpRequest();
-        another_request.open('GET', url2, true);
-        another_request.responseType = 'arraybuffer';
+var load_url = function (url) {
+    return new Promise(function (resolve, reject) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", url);
+        xhr.onload = function () {
+            resolve(xhr.response);
+        };
+        xhr.onerror = reject;
+        xhr.send();
+    });
+};
 
-        // Decode asynchronously
-        another_request.onload = function() {
-            audio_context.decodeAudioData(another_request.response, function(buffer) {
-                audiobuffer2 = buffer;
-            });
+function audio_init() {
+
+    load_url("data/invention.mml").then(function (data) {
+        MML_DATA = data;
+        app = new ScalableSequencer(MML_DATA);
+        scales = ScalableSequencer.scales;
+        isPlaying = false;
+        ins = 1;
+        countscale = 0;
+    });
+
+
+}
+
+function seq_play(callback) {
+    if (MML_DATA && app) {
+        if (!isPlaying) {
+            app.start(callback);
+            isPlaying = true;
+            $("#seq-play").html("Stop!");
         }
-        another_request.send();
-	}
-	catch(e){
-		alert('Web Audio API not supported in this stupid browser');
-	}
+        else {
+            app.stop();
+            isPlaying = false;
+            $("#seq-play").html("Play!");
+        }
+    }
+};
+
+
+function seq_ton() {
+    if (app && isPlaying) {
+        app.messinst(ins++);
+        if (ins > 2) {
+            ins = 0;
+        }
+    }
+};
+
+function seq_tone(e) {
+    if (app && isPlaying && e <= 2) {
+        app.messinst(e);
+    }
+    return e;
+};
+
+function seq_scale(e) {
+
+    if (app && isPlaying) {
+        if (e) {
+            app.setScale("major");
+        } else {
+            app.setScale(scales[countscale]);
+            countscale++;
+            if (countscale >= scales.length) {
+                countscale = 0;
+            }
+        }
+    }
 }
 
-
-function pause_audio(isStop){
-	if(!audio_context){
-		alert('error in retrieving the audio');
-		return;
-	}
-	
-	if(!as1 || !as2 || p_time == 0){
-		alert("no audio is playing");
-		return;
-	}
-	
-	as1.source.stop();
-    as2.source.stop();
-
-	if(isStop){
-		p_time = 0;
-	}else{
-	// audio play next time will continue from where it paused
-	p_time = audio_context.currentTime - p_time;	
-	}
-	
-	isPlaying = false;
+function seq_faster() {
+    if (app && isPlaying) {
+        app.messrhythm(-0.5);
+    }
 }
 
-function createSource(buffer) {
-    var source = audio_context.createBufferSource();
-    var gainNode = audio_context.createGain ? audio_context.createGain() : audio_context.createGainNode();
-    source.buffer = buffer;
-    // Turn on looping
-    source.loop = true;
-    // Connect source to gain.
-    source.connect(gainNode);
-    // Connect gain to destination.
-    gainNode.connect(audio_context.destination);
-
-    return {
-        source: source,
-        gainNode: gainNode
-    };
-}
-
-
-
-function play(){
-	if(!audiobuffer || !audio_context){
-		alert('error in retrieving the audio');
-		return;
-	}
-
-    as1 = createSource(audiobuffer);
-    as2 = createSource(audiobuffer2);
-    as2.gainNode.gain.value = 0;
-	if(p_time == 0){
-		p_time = audio_context.currentTime;
-		console.log("p_time: " + p_time + ";");
-		as1.source.start(0);
-        as2.source.start(0);
-	}else{
-		console.log("p_time: " + p_time + ";");
-		as1.source.start(0,p_time);
-        as2.source.start(0,p_time);
-		p_time = audio_context.currentTime - p_time;
-	}
-	
-	isPlaying = true;
-}
-
-function change_volumn(element){
- if(!as1){
-	 return;
- }
-  var volume = element.value;
-  var fraction = parseInt(volume) / parseInt(element.max);
-  as1.gainNode.gain.value = fraction;
-  as2.gainNode.gain.value = 1 - fraction;
+function seq_slower() {
+    if (app && isPlaying) {
+        app.messrhythm(0.5);
+    }
 }

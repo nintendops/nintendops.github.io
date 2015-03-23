@@ -1,7 +1,7 @@
 /**
  * Created by nintendops on 2/12/2015.
  */
-
+var audio_context;
 var mContext = null;
 var mAudioGenerator = null;
 var audio_track = null;
@@ -9,24 +9,37 @@ var mAudio = null;
 var mLength = null;
 var timer1 = null;
 var mreset = true;
-var SYN_STATE_1 = false;
-var SYN_STATE_2 = false;
+var SYN_STATE = 0;
 var SYN_START = false;
+
+
+window.addEventListener('load', init_syn, false);
+
+function init_syn() {
+    try {
+        window.AudioContext = window.AudioContext || window.webkitAudioContext;
+        audio_context = new AudioContext();
+    }
+    catch (e) {
+        alert('Web Audio API not supported in this stupid browser');
+    }
+
+}
 
 var play_syn = function (url) {
     if (audio_track) {
         // do something if tracker is on
     }
-    if(!SYN_START){return;}
+    if (!SYN_START) {
+        return;
+    }
 
-    switch(url){
+    switch (url) {
         case "preload.json":
-            SYN_STATE_1 = true;
-            SYN_STATE_2 = false;
+            SYN_STATE = 1;
             break;
         case "preload2.json":
-            SYN_STATE_2 = true;
-            SYN_STATE_1 = false;
+            SYN_STATE = 2;
             break;
     }
 
@@ -53,7 +66,7 @@ function run_syn() {
     SYN_START = true;
     window.AudioContext = window.AudioContext || window.webkitAudioContext;
     mContext = new AudioContext();
-    play_syn("preload.json");
+    play_syn("data/preload.json");
 }
 
 

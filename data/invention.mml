@@ -1,0 +1,11 @@
+t100 l8 q4 
+  /: ab-< c4c4c4 c4.faf fedc>b-4 [gb-]2 [fa]4 agb-a<c>b- <c+dc>b-ag f2[ea]g f4r4 :/
+  /: [fa][eg] [eg]2[gb-][fa] [fa]2<c>b b<dfd>b<d c4.>b-
+     ab-< c4c4c4 c4.faf fedc>b-4 [gb-]2 [fa]4 agb-a<c>b- <c+dc>b-ag f2[ea]g f4r4 :/
+;
+
+t100 l8 o4 q7 v10 @(wave='sine')
+  /: r4 f<c>a<c>a<c> f<c>a<c>a<c> g<c>b-<c>b-<c> [e<c]2 [f<c]4 [b-<d]2.^2 [>b-<b-]4 [ca]2[cb-]4 [fa]4 >f4< :/
+  /: r4 c4<c4r4> c4<c4r4> [cdf]4[cdf]4[cdf]4 [ce]4r4
+     r4 f<c>a<c>a<c> f<c>a<c>a<c> g<c>b-<c>b-<c> [e<c]2 [f<c]4 [b-<d]2.^2 [>b-<b-]4 [ca]2[cb-]4 [fa]4 >f4< :/
+;

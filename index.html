@@ -1,45 +1,52 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html lang="en">
 <head>
-	<title>Tracker Test</title>
-	<meta http-equiv="content-type" content="text/html; charset=windows-1252">
-	<meta http-equiv="content-language" content="en">
-	<meta name="description" content="Javascript kaleidoscope for iPhone/iPod Touch">
-	<meta name="keywords" content="iphone,ipod touch,ipod,touch,apple webapps,apple,webapps,graphic,design,visual,effect,animation,particle,code,javascript,canvas">
-	<meta name="author" content="REZ">
-	<meta name="generator" content="REZ">
-	<meta name="version" content="0.4">
-	<meta name="copyright" content="REZ 2008">
-	<meta name="robots" content="all">
-	<meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
-	<meta http-equiv="content-type" content="text/html; charset=windows-1252">
-	<meta http-equiv="content-language" content="en">
-	<meta name="description" content="javascript+canvas starfield">
-	<meta name="keywords" content="starfield, star,3d,effect,visual,javascript,canvas,dhtml,webdesign,google,chrome">
-	<meta name="author" content="REZ">
-	<meta name="generator" content="REZ">
-	<meta name="version" content="2.1">
-	<meta name="copyright" content="REZ 2007-2009">
-	<meta name="robots" content="all">
-	<meta name="viewport" content="width=device-width,user-scalable=0,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0">
-	<link rel="apple-touch-icon" href="http://flashcanvas.googlecode.com/svn/trunk/examples/www.chiptune.com/kaleidoscope/icon.gif">
-	<link rel="shortcut icon" href="http://flashcanvas.googlecode.com/svn/trunk/examples/www.chiptune.com/kaleidoscope/ico.gif">
-	<link rel="stylesheet" href="trackingjs/examples/assets/demo.css">
-	<link rel="stylesheet" type="text/css" href="myCSS.css">
-	<style type="text/css">
-	body  {margin:0;padding:0;background-color:#000000;font-size:0;overflow:hidden}
-	div   {margin:0;padding:0;position:absolute;font-size:0;overflow:hidden}
-	canvas{background-color:#000000;overflow:hidden}
-	.tap  {-webkit-tap-highlight-color:rgba(255,0,0,0.2);cursor:pointer}
-	video { margin-left: 10px;    margin-top: 50px;   position: absolute; }	
-	</style>
-	<!--[if lt IE 9]><script type="text/javascript" src="../../../bin/flashcanvas.js"></script><![endif]-->
+    <title>Tracker Test</title>
+    <meta http-equiv="content-type" content="text/html; charset=windows-1252">
+    <meta http-equiv="content-language" content="en">
+    <link rel="apple-touch-icon"
+          href="http://flashcanvas.googlecode.com/svn/trunk/examples/www.chiptune.com/kaleidoscope/icon.gif">
+    <link rel="shortcut icon"
+          href="http://flashcanvas.googlecode.com/svn/trunk/examples/www.chiptune.com/kaleidoscope/ico.gif">
+    <link rel="stylesheet" href="trackingjs/examples/assets/demo.css">
+    <link rel="stylesheet" type="text/css" href="myCSS.css">
+    <link href="css/bootstrap.css" rel="stylesheet"/>
+    <style type="text/css">
+        body {
+            background-color: #000000;
+        }
+
+        canvas {
+            background-color: #000000;
+            overflow: hidden
+        }
+
+        .tap {
+            -webkit-tap-highlight-color: rgba(255, 0, 0, 0.2);
+            cursor: pointer
+        }
+
+        video {
+            margin-left: 10px;
+            margin-top: 50px;
+            position: absolute;
+        }
+    </style>
+    <!--[if lt IE 9]>
+    <script type="text/javascript" src="../../../bin/flashcanvas.js"></script><![endif]-->
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script src="//mohayonao.github.io/mml-emitter/build/mml-emitter.min.js"></script>
+    <script src="//mohayonao.github.io/neume.js/build/neume.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script type="text/javascript" src="./dist/oflow.js"></script>
- <script src="./dat.gui.min.js"></script>
- <script src="./audio.js"></script>
- <script src="./synthesizer.js"></script>
- <script src="./tracking.js"></script>
+    <script src="dat.gui.min.js"></script>
+    <script src="audio.js"></script>
+    <script src="tracking.js"></script>
+    <script src="sequencer/subcollider.js"></script>
+    <script src="sequencer/scales.js"></script>
+    <script src="sequencer/tunings.js"></script>
+    <script src="sequencer/scalable-sequencer.js"></script>
 
     <!-- synthesizer lib>  <!-->
     <script type="text/javascript" src="components/sonantx/sonantx.js"></script>
@@ -48,59 +55,151 @@
     <script type="text/javascript" src="components/uri.js/src/URI.js"></script>
     <script type="text/javascript" src="components/underscore/underscore.js"></script>
 
+    <script type="text/javascript">
 
-<script type="text/javascript">
+        $(document).unbind("keypress.key32");
+
+        function ini_loader() {
+            var preloader = $("#preloader");
+            if (preloader) {
+                preloader.addClass("preloader");
+                $("#preloader-filter").addClass("preloader-filter");
+                // timeout if loading takes more than 10 sec
+                setTimeout(function () {
+                    var sl = preloader.attr("id");
+                    if (sl) {
+                        preloader.fadeOut("slow", function () {
+                            preloader.removeAttr("class");
+                            preloader.removeAttr("style");
+                            $("#preloader-filter").removeAttr("class");
+
+                        });
+                    }
+                }, 15000);
+            }
+        }
+
+        function fade_loader() {
+            var preloader = $("#preloader");
+            if (preloader) {
+                preloader.fadeOut("slow", function () {
+                    preloader.removeAttr("class");
+                    preloader.removeAttr("style");
+                    $("#preloader-filter").removeAttr("class");
+                });
+            }
+        }
+
+        function get_screen_size() {
+            var w = document.documentElement.clientWidth;
+            var h = document.documentElement.clientHeight;
+            return Array(w, h);
+        }
 
 
-document.onkeypress=key_manager;
+        $(function () {
+            var webCamFlow = null;
+            var ot = new OpticalTracker();
+            var instr = 0;
+            var callback = function (u, v, x, y) {
+                var hash = location.hash;
+                StarField.flow_move(u, v);
+                switch (hash) {
+                    case "#scale":
+                        // scale mode
+                        if (x < -100) {
+                            seq_scale(true);
 
-function key_manager(evt)
-	{
-	evt=evt||event;
-	var key=evt.which||evt.keyCode;
-	var ctrl=evt.ctrlKey;
-	switch(key)
-		{
-		// enter
-		case 13:
-			break;
-		// escape
-		case 27: 
-			break;
-		}
-	}
-	
-</script>
+                        } else {
+                            seq_scale(false);
+                        }
+                        break;
+                    case "#tone":
+                    default:
+                        // tone mode
+                        if (x < -100) {
+                            instr = seq_tone(2);
+
+                        } else {
+                            instr = seq_tone(0);
+                        }
+                        break;
+
+                }
+
+            };
+
+            // call when camera is tracking
+            var once = function () {
+                seq_play(function (e) {
+                    if (e.midi >= 80 && e.midi <= 85 && instr == 2) {
+                        StarField.tracking_blink(e.duration * 1000);
+                    }
+                });
+            };
+
+            // UI setup
+            $(".navbar-nav li").on("click", function () {
+                $.each($(".navbar-nav li"), function () {
+                    if ($(this).hasClass("active")) {
+                        $(this).removeAttr("class");
+                    } else {
+                        $(this).attr("class", "active");
+                    }
+                });
+            });
+
+            $(".navbar-brand").on("click", function () {
+
+                webCamFlow = ot.start(callback, once);
+                if (ot.tracking) {
+                    StarField.start();
+                }
+            });
+        });
+
+    </script>
+
+
 </head>
 
 
-<body onresize="tracker_resize()" onorientationchange="tracker_resize()" style="width: 1854px; height: 1553px;">
+<body style="width: 1854px; height: 1553px;">
 
 
-<div id="screen" style="background-color: rgb(0, 0, 0); display: block; position: absolute; left: 0px; top: 0px; width: 1854px; height: 800px;">
+<div id="preloader">
+    <div id="preloader-filter"></div>
+</div>
 
-<canvas height="1553" width="1854" style="background-color:#000000; position: absolute; left: 0px; top: 100px;" id="shadebob"></canvas>
-<canvas height="460" width="941" id="starfield" style="background-color: rgb(0, 0, 0); position: absolute; left: 50px; top: 120px;"></canvas>
+<nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">Start</a>
+        </div>
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li id="Tone-Button" class="active"><a href="#tone">Tone Mode</a></li>
+                <li id="Scale-Button"><a href="#scale">Scale Mode</a></li>
+            </ul>
+        </div>
+        <!--/.nav-collapse -->
+    </div>
+</nav>
 
-<video id="videoOut" width="240" height="200" preload autoplay loop muted></video>
-<button type="button" name="play" onclick="play()">Play!</button>
-<button type="button" name="pauseaudio" onclick="pause_audio(false)">Pause!</button>
-<button type="button" name="stop" onclick="pause_audio(true)">Stop!</button>
-<button type="button" name="track" onclick="start_tracking()">Track!</button>
-    <p>
-        <input id="audio_range" style="position:relative; top: 20px" type="range" oninput="change_volumn(this);" value="100" max="100" min="0">
-    </p>
+<div id="screen"
+     style="background-color: rgb(0, 0, 0); display: block; position: absolute; left: 0px; top: 40px; width: 1854px; height: 1500px;">
 
-    <p>
-    <button type="button" style="position:relative; top: 40px" name="sync_play" onclick="run_syn()"> Play synthesizer!</button>
-    <button type="button" style="position:relative; top: 40px"name="sync_stop" onclick="stopPlaying();SYN_START=false"> Stop synthesizer</button>
-    <button type="button" style="position:relative; top: 40px"name="sync_change" onclick="play_syn(&quot;preload2.json&quot;)"> Change tone 1</button>
-    <button type="button" style="position:relative; top: 40px"name="sync_change" onclick="play_syn(&quot;preload3.json&quot;)"> Change tone 2</button>
-</p>
-<p>
-<button type="button" style="position:relative; top: 60px" name="anim" onclick="tracker_start()">Start Animation!</button>
-</p>
-
+    <canvas height="1553" width="1854" style="background-color:#000000; position: absolute; left: 0px; top: 40px;"
+            id="shadebob"></canvas>
+    <canvas height="1500" width="1841" id="starfield"
+            style="background-color: rgb(0, 0, 0); position: absolute; left: 10px; top: 40px;"></canvas>
+    <video id="videoOut" width="240" height="200" preload autoplay loop muted></video>
 
 </div>
 

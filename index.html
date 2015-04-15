@@ -32,177 +32,164 @@
             position: absolute;
         }
     </style>
-    <!--[if lt IE 9]>
-    <script type="text/javascript" src="../../../bin/flashcanvas.js"></script><![endif]-->
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-    <script src="//mohayonao.github.io/mml-emitter/build/mml-emitter.min.js"></script>
-    <script src="//mohayonao.github.io/neume.js/build/neume.min.js"></script>
-    <script src="js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="./dist/oflow.js"></script>
-    <script src="dat.gui.min.js"></script>
-    <script src="audio.js"></script>
-    <script src="tracking.js"></script>
-    <script src="sequencer/subcollider.js"></script>
-    <script src="sequencer/scales.js"></script>
-    <script src="sequencer/tunings.js"></script>
-    <script src="sequencer/scalable-sequencer.js"></script>
-
-    <!-- synthesizer lib>  <!-->
-    <script type="text/javascript" src="components/sonantx/sonantx.js"></script>
-    <script type="text/javascript" src="components/jquery/dist/jquery.js"></script>
-    <script type="text/javascript" src="components/lz-string-bower/lz-string.js"></script>
-    <script type="text/javascript" src="components/uri.js/src/URI.js"></script>
-    <script type="text/javascript" src="components/underscore/underscore.js"></script>
-
-    <script type="text/javascript">
-
-        $(document).unbind("keypress.key32");
-
-        function ini_loader() {
-            var preloader = $("#preloader");
-            if (preloader) {
-                preloader.addClass("preloader");
-                $("#preloader-filter").addClass("preloader-filter");
-                // timeout if loading takes more than 10 sec
-                setTimeout(function () {
-                    var sl = preloader.attr("id");
-                    if (sl) {
-                        preloader.fadeOut("slow", function () {
-                            preloader.removeAttr("class");
-                            preloader.removeAttr("style");
-                            $("#preloader-filter").removeAttr("class");
-
-                        });
-                    }
-                }, 15000);
-            }
-        }
-
-        function fade_loader() {
-            var preloader = $("#preloader");
-            if (preloader) {
-                preloader.fadeOut("slow", function () {
-                    preloader.removeAttr("class");
-                    preloader.removeAttr("style");
-                    $("#preloader-filter").removeAttr("class");
-                });
-            }
-        }
-
-        function get_screen_size() {
-            var w = document.documentElement.clientWidth;
-            var h = document.documentElement.clientHeight;
-            return Array(w, h);
-        }
-
-
-        $(function () {
-            var webCamFlow = null;
-            var ot = new OpticalTracker();
-            var instr = 0;
-            var callback = function (u, v, x, y) {
-                var hash = location.hash;
-                StarField.flow_move(u, v);
-                switch (hash) {
-                    case "#scale":
-                        // scale mode
-                        if (x < -100) {
-                            seq_scale(true);
-
-                        } else {
-                            seq_scale(false);
-                        }
-                        break;
-                    case "#tone":
-                    default:
-                        // tone mode
-                        if (x < -100) {
-                            instr = seq_tone(2);
-
-                        } else {
-                            instr = seq_tone(0);
-                        }
-                        break;
-
-                }
-
-            };
-
-            // call when camera is tracking
-            var once = function () {
-                seq_play(function (e) {
-                    if (e.midi >= 80 && e.midi <= 85 && instr == 2) {
-                        StarField.tracking_blink(e.duration * 1000);
-                    }
-                });
-            };
-
-            // UI setup
-            $(".navbar-nav li").on("click", function () {
-                $.each($(".navbar-nav li"), function () {
-                    if ($(this).hasClass("active")) {
-                        $(this).removeAttr("class");
-                    } else {
-                        $(this).attr("class", "active");
-                    }
-                });
-            });
-
-            $(".navbar-brand").on("click", function () {
-
-                webCamFlow = ot.start(callback, once);
-                if (ot.tracking) {
-                    StarField.start();
-                }
-            });
-        });
-
-    </script>
-
 
 </head>
 
 
-<body style="width: 1854px; height: 1553px;">
+<body style="cursor: default;">
+<video id="videoOut" width="240" height="200" preload autoplay loop muted></video>
 
+<div id="lights_wrapper">
 
-<div id="preloader">
-    <div id="preloader-filter"></div>
-</div>
-
-<nav class="navbar navbar-inverse navbar-fixed-top">
-    <div class="container-fluid">
-        <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
-                    aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">Toggle navigation</span>
-                <span class="icon-bar"></span>
-                <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand">Start</a>
-        </div>
-        <div id="navbar" class="collapse navbar-collapse">
-            <ul class="nav navbar-nav">
-                <li id="Tone-Button" class="active"><a href="#tone">Tone Mode</a></li>
-                <li id="Scale-Button"><a href="#scale">Scale Mode</a></li>
-            </ul>
-        </div>
-        <!--/.nav-collapse -->
+    <div id="lights_fail" class="lights_body">
     </div>
-</nav>
-
-<div id="screen"
-     style="background-color: rgb(0, 0, 0); display: block; position: absolute; left: 0px; top: 40px; width: 1854px; height: 1500px;">
-
-    <canvas height="1553" width="1854" style="background-color:#000000; position: absolute; left: 0px; top: 40px;"
-            id="shadebob"></canvas>
-    <canvas height="1500" width="1841" id="starfield"
-            style="background-color: rgb(0, 0, 0); position: absolute; left: 10px; top: 40px;"></canvas>
-    <video id="videoOut" width="240" height="200" preload autoplay loop muted></video>
 
 </div>
 
+<div style="position: absolute; top: 0px; left: 0px; z-index: -100; margin: 0px; padding: 0px;">
+    <canvas width="1846" height="952"></canvas>
+</div>
 
-</body>
-</html>
+
+<!--[if lt IE 9]>
+<script type="text/javascript" src="../../../bin/flashcanvas.js"></script><![endif]-->
+<script src="js/jquery.min.js"></script>
+<script src="js/underscore-min.js"></script>
+<script src="js/mml-emitter.js"></script>
+<script src="js/neume.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script type="text/javascript" src="./dist/oflow.js"></script>
+<script src="dat.gui.min.js"></script>
+<script src="audio.js"></script>
+<script src="tracking.js"></script>
+<script src="sequencer/subcollider.js"></script>
+<script src="sequencer/scales.js"></script>
+<script src="sequencer/tunings.js"></script>
+<script src="sequencer/scalable-sequencer.js"></script>
+
+<!-- webGL lib>  <!-->
+<script type="text/javascript" src="./js/Config.js"></script>
+<script type="text/javascript" src="./js/Three.js"></script>
+<script type="text/javascript" src="./js/Lights.js"></script>
+<script src="./js/js" type="text/javascript"></script>
+<link rel="stylesheet" href="http://lights.helloenjoy.com/css/lights.css">
+<link href="./js/css" rel="stylesheet" type="text/css">
+
+
+<script type="text/javascript">
+
+    $(document).unbind("keypress.key32");
+
+    function ini_loader() {
+        var preloader = $("#preloader");
+        if (preloader) {
+            preloader.addClass("preloader");
+            $("#preloader-filter").addClass("preloader-filter");
+            // timeout if loading takes more than 10 sec
+            setTimeout(function () {
+                var sl = preloader.attr("id");
+                if (sl) {
+                    preloader.fadeOut("slow", function () {
+                        preloader.removeAttr("class");
+                        preloader.removeAttr("style");
+                        $("#preloader-filter").removeAttr("class");
+
+                    });
+                }
+            }, 15000);
+        }
+    }
+
+    function fade_loader() {
+        var preloader = $("#preloader");
+        if (preloader) {
+            preloader.fadeOut("slow", function () {
+                preloader.removeAttr("class");
+                preloader.removeAttr("style");
+                $("#preloader-filter").removeAttr("class");
+            });
+        }
+    }
+
+    function get_screen_size() {
+        var w = document.documentElement.clientWidth;
+        var h = document.documentElement.clientHeight;
+        return Array(w, h);
+    }
+
+
+    window.onload = function () {
+      //  var ot = new OpticalTracker();
+      //  ot.start();
+        this.lights = new LIGHTS.Lights(null);
+    };
+
+    /* $(function () {
+     var webCamFlow = null;
+     var ot = new OpticalTracker();
+     var instr = 0;
+     var callback = function (u, v, x, y) {
+     var hash = location.hash;
+     StarField.flow_move(u, v);
+     switch (hash) {
+     case "#scale":
+     // scale mode
+     if (x < -100) {
+     seq_scale(true);
+
+     } else {
+     seq_scale(false);
+     }
+     break;
+     case "#tone":
+     default:
+     // tone mode
+     if (x < -100) {
+     instr = seq_tone(2);
+
+     } else {
+     instr = seq_tone(0);
+     }
+     break;
+
+     }
+
+     };
+
+     // call when camera is tracking
+     var once = function () {
+     seq_play(function (e) {
+     if (e.midi >= 80 && e.midi <= 85 && instr == 2) {
+     StarField.tracking_blink(e.duration * 1000);
+     }
+     });
+     };
+
+     // UI setup
+     $(".navbar-nav li").on("click", function () {
+     $.each($(".navbar-nav li"), function () {
+     if ($(this).hasClass("active")) {
+     $(this).removeAttr("class");
+     }
+     });
+     $(this).attr("class", "active");
+     });
+
+     $(".navbar-brand").on("click", function () {
+
+     webCamFlow = ot.start(callback, once);
+     if (ot.tracking) {
+     StarField.start();
+     }
+     });
+
+     $("#Slow-Button").on("click", function () {
+     seq_slower();
+     });
+     });
+     */
+
+</script>
+
+
+</body></html>

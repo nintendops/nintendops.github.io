@@ -1,37 +1,3 @@
-2/25
-8char drum: great example from mohayonao 
-
-2/18
-new option for js synthesizer?
-	- http://mohayonao.github.io/timbre.js/
-
-2/10 - 2/18
-integrate sonantX into tracker
- - changes to sythesizer parameter are made every 32 beats now
- - regions of the screen dedicated to different transfomrations
- - response delay is still a problem
-
-an alternative:
- - concurrently play different layers. Switching volumn to reach crossfading effect
-	
-2/10
-results from code study of sonantX:
- - key point: synthesizer should create music nodes of which length is short enough so that music can be generated on the fly
- - what we can control on the fly: oscillator parameters (Vol, Oct, Semi, Det), envelope, LFO, FX
- 
-
-2/5
- - what attributes of audio could we change on the fly? volumn? pitch? rhythm? 
- - if we can't flexibly manipulate pitch and speed, what sound effects could we have?
-
-reference:
-http://sonantlive.bitsnbites.eu/#gettingStarted
-http://dashersw.github.io/pedalboard.js/
-https://github.com/goldfire/howler.js
-http://chimera.labs.oreilly.com/books/1234000001552/index.html
-http://webaudiodemos.appspot.com/
-http://middleearmedia.com/web-audio-api-oscillators/
-
 2/1-2/2
  - optical flow controls volumn of soundtrack and direction of starfield
 
@@ -51,7 +17,7 @@ http://middleearmedia.com/web-audio-api-oscillators/
 1/25 
 - integrating audio, animation and tracker
 - working on 1 degree of freedom: tracker plays music when threshold is reached
-
+Tracker for my COMP393
 
 1/21 -22
 dealing with audio (2-4h). References:

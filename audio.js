@@ -1,6 +1,6 @@
 var MML_DATA, app, scales, isPlaying, ins, countscale;
 
-window.addEventListener('load', audio_init, false);
+//window.addEventListener('load', audio_init, false);
 
 
 var load_url = function (url) {
@@ -10,36 +10,35 @@ var load_url = function (url) {
         xhr.onload = function () {
             resolve(xhr.response);
         };
-        xhr.onerror = reject;
         xhr.send();
     });
 };
 
-function audio_init() {
+function audio_init(callback) {
 
-    load_url("data/invention.mml").then(function (data) {
+    load_url("data/invention2.mml").then(function (data) {
         MML_DATA = data;
         app = new ScalableSequencer(MML_DATA);
         scales = ScalableSequencer.scales;
         isPlaying = false;
-        ins = 1;
+        ins = 2;
         countscale = 0;
+        callback();
     });
 
 
 }
 
-function seq_play(callback) {
+function seq_play() {
+    console.log("seq_play is called!!")
     if (MML_DATA && app) {
         if (!isPlaying) {
-            app.start(callback);
+            app.start();
             isPlaying = true;
-            $("#seq-play").html("Stop!");
         }
         else {
             app.stop();
             isPlaying = false;
-            $("#seq-play").html("Play!");
         }
     }
 };
@@ -78,12 +77,29 @@ function seq_scale(e) {
 
 function seq_faster() {
     if (app && isPlaying) {
-        app.messrhythm(-0.5);
+
     }
 }
 
 function seq_slower() {
     if (app && isPlaying) {
-        app.messrhythm(0.5);
+        var once = true;
+        var offset;
+        var slower = function (e) {
+            if (e.type !== "note") {
+                return;
+            }
+            var t = e.playbackTime;
+            if (once) {
+                offset = t;
+                once = false;
+                return t;
+            } else {
+                return 1.2 * t - 0.2 * offset;
+            }
+            console.log(offset);
+        };
+
+        app.convert_rhythm(slower);
     }
 }

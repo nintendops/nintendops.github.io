@@ -5,7 +5,7 @@
     var baserhythm = 1;
     var baseRoot = 60;
     var baseScale = sc.Scale.major();
-    var baseInstr = LittleSeren;
+    var baseInstr = Piano;
     var rootFreq = baseRoot.midicps();
 
 
@@ -54,6 +54,12 @@
         this._dst = null;
         this._instr = baseInstr;
         this._scale = sc.Scale.major();
+        this._e = null;
+        this._switchtime = null;
+        this.currentTime = 0;
+        this.convert_r = function (e) {
+            return e.playbackTime;
+        };
     }
 
     ScalableSequencer.scales = (function () {
@@ -68,7 +74,7 @@
             if (scale.pitchesPerOctave() !== 12) {
                 return;
             }
-            console.log("pushing " + key);
+            // console.log("pushing " + key);
             scales.push(key);
         });
         scales.push("major");
@@ -92,7 +98,7 @@
         return tunings;
     })();
 
-    ScalableSequencer.prototype.start = function (callback) {
+    ScalableSequencer.prototype.start = function () {
         var _this = this;
         neu.start();
 
@@ -102,26 +108,30 @@
         if (this._mml) {
             this._mml.stop();
         }
-
+        var start = new Date().getTime();
         this._dst = neu.Synth(Destination).start();
         this._mml = new MMLEmitter(neu.context, this._mmlData);
         this._mml.tracks.forEach(function (track) {
+            //console.log(track);
             track.on("note", function (e) {
                 if (e.type !== "note") {
                     return;
                 }
-                callback(e);
+                _this.currentTime = (new Date().getTime() - start) / 1000;
 
+
+                var t = _this.convert_r(e);
+                _this._e = e;
                 var key = e.midi - baseRoot;
                 var deg = baseScale.performKeyToDegree(key);
                 var freq = _this._scale.degreeToFreq2(deg, rootFreq, 0);
-                neu.Synth(baseInstr, freq, e.duration).start(baserhythm * e.playbackTime);
+                neu.Synth(baseInstr, freq, e.duration).start(t);
             });
         });
         var app = this;
         // loop until stop
         this._mml.on("end", function () {
-           // do something
+            // do something
             app.start();
         });
         this._mml.start();
@@ -189,6 +199,67 @@
     ScalableSequencer.prototype.setTuning = function (name) {
         this._scale.tuning(sc.TuningInfo.at(name));
     };
+
+    ScalableSequencer.prototype.convert_rhythm = function (converter) {
+        this.convert_r = converter;
+    };
+
+    ScalableSequencer.prototype.slower = function () {
+        var onceS = true;
+        this._switchtime = neu.context.currentTime;
+        var offsetS;
+        this.convert_r = function (e) {
+            if (e.type !== "note") {
+                return;
+            }
+            var t = e.playbackTime;
+            if (onceS) {
+                offsetS = t;
+                onceS = false;
+                return t;
+            } else {
+                return 1.5 * t - 0.5 * offsetS;
+            }
+        };
+    };
+
+    ScalableSequencer.prototype.faster = function () {
+        var once = true;
+        var offset;
+        this.convert_r = function (e) {
+            if (e.type !== "note") {
+                return;
+            }
+            var t = e.playbackTime;
+            if (once) {
+                offset = t;
+                once = false;
+                return t;
+            } else {
+                var fb = offset + (1.5 * (t - offset));
+                return fb;
+            }
+        };
+    }
+
+    ScalableSequencer.prototype.normal = function () {
+        var delay = null;
+        var _this = this;
+        if (_this._switchtime) {
+            _this.convert_r = function(e){
+                return 0;
+            };
+            delay = (1-1/1.5)*(neu.context.currentTime - _this._switchtime);
+            console.log("delay: " + delay);
+            setTimeout(function(){
+                _this.convert_r = function (e) {
+                    return e.playbackTime;
+                };
+            }, delay*1000);
+        }
+
+    };
+
 
     window.ScalableSequencer = ScalableSequencer;
 

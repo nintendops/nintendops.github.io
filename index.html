@@ -121,7 +121,7 @@
     window.onload = function () {
         var ot = new OpticalTracker();
         ot.start();
-        this.lights = new LIGHTS.Lights(null);
+        this.lights = new LIGHTS.Lights(ot);
     };
 
     /* $(function () {

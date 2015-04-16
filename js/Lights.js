@@ -2392,8 +2392,8 @@ LIGHTS.Player.prototype = {
             move = deltaTime * this.velocity * this.turbo;
 
             // Steer
-            //this.angle -= (-0.5*this.optics.dx) * this.turbo * deltaTime * this.velocity * 0.001;
-            this.angle -= input.mouseX * this.turbo * deltaTime * this.velocity * 0.001;
+            this.angle -= (-0.5*this.optics.dx) * this.turbo * deltaTime * this.velocity * 0.001;
+            //this.angle -= input.mouseX * this.turbo * deltaTime * this.velocity * 0.001;
         }
 
         // Update
@@ -2412,7 +2412,8 @@ LIGHTS.Player.prototype = {
         }
 
         // Roll
-        this.roll -= (this.roll - (userMult * input.mouseX * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
+        //this.roll -= (this.roll - (userMult * input.mouseX * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
+		this.roll -= (this.roll - (userMult * (0.5*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
         this.rollAxis.sub(this.cameraPosition, this.targetPosition);
         this.rollAxis.normalize();
         this.cameraUp.x = this.cameraUp.z = 0;
@@ -2422,8 +2423,8 @@ LIGHTS.Player.prototype = {
         this.camera.matrix.lookAt(this.cameraPosition, this.targetPosition, this.cameraUp);
 
         // Tilt
-        //this.cameraTilt -= (this.cameraTilt + (userMult * (0.5*this.optics.dy) * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
-        this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
+        this.cameraTilt -= (this.cameraTilt + (userMult * (0.5*this.optics.dy) * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
+        //this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
         this.auxMatrix.setRotationX(this.cameraTilt);
         this.camera.matrix.multiply(this.camera.matrix, this.auxMatrix);
 

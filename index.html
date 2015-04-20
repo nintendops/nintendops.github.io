@@ -124,70 +124,7 @@
         this.lights = new LIGHTS.Lights(ot);
     };
 
-    /* $(function () {
-     var webCamFlow = null;
-     var ot = new OpticalTracker();
-     var instr = 0;
-     var callback = function (u, v, x, y) {
-     var hash = location.hash;
-     StarField.flow_move(u, v);
-     switch (hash) {
-     case "#scale":
-     // scale mode
-     if (x < -100) {
-     seq_scale(true);
 
-     } else {
-     seq_scale(false);
-     }
-     break;
-     case "#tone":
-     default:
-     // tone mode
-     if (x < -100) {
-     instr = seq_tone(2);
-
-     } else {
-     instr = seq_tone(0);
-     }
-     break;
-
-     }
-
-     };
-
-     // call when camera is tracking
-     var once = function () {
-     seq_play(function (e) {
-     if (e.midi >= 80 && e.midi <= 85 && instr == 2) {
-     StarField.tracking_blink(e.duration * 1000);
-     }
-     });
-     };
-
-     // UI setup
-     $(".navbar-nav li").on("click", function () {
-     $.each($(".navbar-nav li"), function () {
-     if ($(this).hasClass("active")) {
-     $(this).removeAttr("class");
-     }
-     });
-     $(this).attr("class", "active");
-     });
-
-     $(".navbar-brand").on("click", function () {
-
-     webCamFlow = ot.start(callback, once);
-     if (ot.tracking) {
-     StarField.start();
-     }
-     });
-
-     $("#Slow-Button").on("click", function () {
-     seq_slower();
-     });
-     });
-     */
 
 </script>
 

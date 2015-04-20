@@ -32,7 +32,7 @@
             obj = Object.create(obj || {});
 
             var defaults = {
-                defaultTempo: 120,
+                defaultTempo: 90,
                 minTempo: 30,
                 maxTempo: 240,
                 defaultOctave: 5,
@@ -397,8 +397,7 @@
                 var length = valueOf(ctx, elem, 4);
 
                 length = clip(length, config.minLength, config.maxLength);
-
-                return (60 / ctx._tempo) * (4 / length);
+                return (60 / ctx._ttempo) * (4 / length);
             }).reduce(sum, 0);
         }
 
@@ -1063,7 +1062,7 @@
             this._shared = parent;
             this._config = config;
             this._nodes = MMLCompiler.compile(this, nodes);
-
+            this._ttempo = 90;
             this._sched = [];
             this._currentTimeIncr = 0;
         }
@@ -1085,6 +1084,7 @@
                 }
 
                 if (this._pos < nodes.length) {
+                    // now currentTime > nextCurrentTime
                     this.sched(currentTime, next);
                 }
 
@@ -1100,6 +1100,7 @@
             var sched = this._sched;
 
             while (sched.length && sched[0][WHEN] < nextCurrentTime) {
+                //FUNC = 1, WHEN = 0
                 var elem = sched.shift();
 
                 elem[FUNC](elem[WHEN]);

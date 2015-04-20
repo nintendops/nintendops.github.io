@@ -2,7 +2,7 @@
 
     function OpticalTracker() {
         // zoneSize affects the sensitivity of flow detection
-        this.zoneSize = 1;
+        this.zoneSize = 8;
         this.tracking = false;
         this.videoElement = null;
         this.webCamFlow = new oflow.WebCamFlow(null, this.zoneSize);

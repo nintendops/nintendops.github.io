@@ -112,7 +112,6 @@
         this._dst = neu.Synth(Destination).start();
         this._mml = new MMLEmitter(neu.context, this._mmlData);
         this._mml.tracks.forEach(function (track) {
-            //console.log(track);
             track.on("note", function (e) {
                 if (e.type !== "note") {
                     return;
@@ -204,7 +203,7 @@
         this.convert_r = converter;
     };
 
-    ScalableSequencer.prototype.slower = function () {
+    /*ScalableSequencer.prototype.slower = function () {
         var onceS = true;
         this._switchtime = neu.context.currentTime;
         var offsetS;
@@ -221,25 +220,20 @@
                 return 1.5 * t - 0.5 * offsetS;
             }
         };
+    };*/
+
+    ScalableSequencer.prototype.slower = function () {
+        this._mml.tracks.forEach(function (track) {
+           track._ttempo /= 1.25;
+            console.log( track._ttempo);
+        });
     };
 
     ScalableSequencer.prototype.faster = function () {
-        var once = true;
-        var offset;
-        this.convert_r = function (e) {
-            if (e.type !== "note") {
-                return;
-            }
-            var t = e.playbackTime;
-            if (once) {
-                offset = t;
-                once = false;
-                return t;
-            } else {
-                var fb = offset + (1.5 * (t - offset));
-                return fb;
-            }
-        };
+        this._mml.tracks.forEach(function (track) {
+            track._ttempo *= 1.25;
+            console.log( track._ttempo);
+        });
     }
 
     ScalableSequencer.prototype.normal = function () {

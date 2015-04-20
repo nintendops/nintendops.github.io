@@ -15,7 +15,8 @@ function FlowCalculator(step) {
 }
 
 FlowCalculator.prototype.calculate = function (oldImage, newImage, width, height) {
-    var zones = [];
+    //var zones = [];
+    var zoneslength = 0;
     var step = this.step;
     var winStep = step * 2 + 1;
 
@@ -74,14 +75,14 @@ FlowCalculator.prototype.calculate = function (oldImage, newImage, width, height
                 -winStep < v && v < winStep) {
                 uu += u;
                 vv += v;
-                zones.push(new FlowZone(globalX, globalY, u, v));
+                //zones.push(new FlowZone(globalX, globalY, u, v));
+                zoneslength++;
             }
         }
     }
 
     return {
-        zones : zones,
-        u : uu / zones.length,
-        v : vv / zones.length
+        u : uu / zoneslength,
+        v : vv / zoneslength
     };
 };

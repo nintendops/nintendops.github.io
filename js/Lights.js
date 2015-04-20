@@ -880,7 +880,7 @@ LIGHTS.Director.prototype = {
     initialize: function (view) {
 
         this.view = view;
-
+        this.optics = LIGHTS.Lights.instance.ot;
         // Stage
         this.player = new LIGHTS.Player(this);
         this.vox = new LIGHTS.Vox(this);
@@ -910,7 +910,7 @@ LIGHTS.Director.prototype = {
         this.phase_switch = true;
         // Music
         this.music.currentTime = LIGHTS.time = LIGHTS.Music.startTime;
-        seq_play();
+        setTimeout(seq_play(),3000);
         LIGHTS.deltaTime = 0;
 
         this.view.start();
@@ -1028,11 +1028,10 @@ LIGHTS.Director.prototype = {
         }else if(input.mouseX < 0 && (!this.phase_switch)){
             this.phase_switch = true;
             LIGHTS.Music.phase.index = 3;
-            this.music.normal();
+            this.music.faster();
             this.launch();
         }
         var midi = this.music._e.midi;
-        console.log(midi);
         if( LIGHTS.Music.phase.index == 7 && midi >= 68 && midi < 71){
             this.beatEvents.beat();
         }
@@ -2413,7 +2412,8 @@ LIGHTS.Player.prototype = {
 
         // Roll
         //this.roll -= (this.roll - (userMult * input.mouseX * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
-		this.roll -= (this.roll - (userMult * (0.5*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
+		this.roll -= (this.roll - (userMult * (1*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
+        console.log(this.optics.dx);
         this.rollAxis.sub(this.cameraPosition, this.targetPosition);
         this.rollAxis.normalize();
         this.cameraUp.x = this.cameraUp.z = 0;
@@ -2423,7 +2423,7 @@ LIGHTS.Player.prototype = {
         this.camera.matrix.lookAt(this.cameraPosition, this.targetPosition, this.cameraUp);
 
         // Tilt
-        this.cameraTilt -= (this.cameraTilt + (userMult * (0.5*this.optics.dy) * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
+        this.cameraTilt -= (this.cameraTilt + (userMult * (1*this.optics.dy) * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
         //this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
         this.auxMatrix.setRotationX(this.cameraTilt);
         this.camera.matrix.multiply(this.camera.matrix, this.auxMatrix);

@@ -910,11 +910,9 @@ LIGHTS.Director.prototype = {
         this.phase_switch = true;
         // Music
         this.music.currentTime = LIGHTS.time = LIGHTS.Music.startTime;
-        setTimeout(seq_play(),3000);
         LIGHTS.deltaTime = 0;
-
         this.view.start();
-
+        setTimeout(seq_play, 1000);
         // Phase
         LIGHTS.Music.phase.index = 0;
         this.launch();
@@ -980,7 +978,6 @@ LIGHTS.Director.prototype = {
                 LIGHTS.deltaTime = (time - this.lastTime) / 1000;
 
                 if (this.isFast) {
-
                     this.isFast = false;
                     // this.music.volume = LIGHTS.Music.mute ? 0 : 1;
                     this.music.currentTime = LIGHTS.time + LIGHTS.deltaTime;
@@ -1018,22 +1015,27 @@ LIGHTS.Director.prototype = {
          this.beatEvents.beat();
          }
          }*/
-        if(input.mouseX >= 0 &&  this.phase_switch){
-            this.phase_switch = false;
+        if (isPlaying && this.player.angle >= 30 * deg2rad && (!this.phase_switch)) {
+            this.phase_switch = true;
             LIGHTS.Music.phase.index = 7;
             this.launch();
             this.music.slower();
+            this.music.messinst(0);
             this.beatEvents.beat();
             this.beatEvents.beat();
-        }else if(input.mouseX < 0 && (!this.phase_switch)){
-            this.phase_switch = true;
+        } else if (isPlaying && this.player.angle < 30 * deg2rad && (this.phase_switch)) {
+            this.phase_switch = false;
             LIGHTS.Music.phase.index = 3;
-            this.music.faster();
             this.launch();
+            this.music.faster();
+            this.music.messinst(2);
+
         }
-        var midi = this.music._e.midi;
-        if( LIGHTS.Music.phase.index == 7 && midi >= 68 && midi < 71){
-            this.beatEvents.beat();
+        if (this.music._e) {
+            var midi = this.music._e.midi;
+            if (LIGHTS.Music.phase.index == 7 && midi >= 68 && midi < 71) {
+                this.beatEvents.beat();
+            }
         }
 
         // Stage
@@ -2391,8 +2393,11 @@ LIGHTS.Player.prototype = {
             move = deltaTime * this.velocity * this.turbo;
 
             // Steer
-            this.angle -= (-0.5*this.optics.dx) * this.turbo * deltaTime * this.velocity * 0.001;
-            //this.angle -= input.mouseX * this.turbo * deltaTime * this.velocity * 0.001;
+            //this.angle -= (-0.5*this.optics.dx) * deltaTime * this.velocity * 0.001
+            if (!((this.angle > 90 * deg2rad && this.optics.dx < 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx > 0))) {
+                //this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
+                this.angle -= (-0.5*this.optics.dx) * deltaTime * 1200 * 0.001
+            }
         }
 
         // Update
@@ -2403,17 +2408,19 @@ LIGHTS.Player.prototype = {
         this.targetPosition.x = this.cameraPosition.x - Math.sin(this.angle) * this.targetDistance;
         this.targetPosition.y = this.cameraPosition.y;
         this.targetPosition.z = this.cameraPosition.z - Math.cos(this.angle) * this.targetDistance;
-
         if (!this.isCamera) {
-
             this.director.view.camera.position.x = this.cameraPosition.x;
             this.director.view.camera.position.z = this.cameraPosition.z;
         }
 
         // Roll
-        //this.roll -= (this.roll - (userMult * input.mouseX * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
-		this.roll -= (this.roll - (userMult * (1*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3 * this.turbo;
-        console.log(this.optics.dx);
+        if (!((this.angle > 90 * deg2rad && this.optics.dx < 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx > 0))) {
+            //this.roll -= (this.roll - (userMult * input.mouseX * 1200 * 0.001)) * deltaTime * 0.3 * this.turbo;
+            this.roll -= (this.roll - (userMult * (0.5*this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
+
+        }
+
+        //this.roll -= (this.roll - (userMult * (1*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3;
         this.rollAxis.sub(this.cameraPosition, this.targetPosition);
         this.rollAxis.normalize();
         this.cameraUp.x = this.cameraUp.z = 0;
@@ -2423,8 +2430,8 @@ LIGHTS.Player.prototype = {
         this.camera.matrix.lookAt(this.cameraPosition, this.targetPosition, this.cameraUp);
 
         // Tilt
-        this.cameraTilt -= (this.cameraTilt + (userMult * (1*this.optics.dy) * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
-        //this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * this.velocity * 0.0005) + this.tilt) * deltaTime * 2;
+        this.cameraTilt -= (this.cameraTilt + (userMult * (0.5 *this.optics.dy) * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
+        //this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
         this.auxMatrix.setRotationX(this.cameraTilt);
         this.camera.matrix.multiply(this.camera.matrix, this.auxMatrix);
 
@@ -2485,7 +2492,7 @@ LIGHTS.Player.prototype = {
                     this.fovTarget = 30;
                     this.altitudeTarget = 110;
 //					this.tiltTarget = rad90 * 0.15;
-                    this.velocityTarget = 1400;
+                    this.velocityTarget = 2100;
                     this.tween(4);
                     break;
 
@@ -9603,7 +9610,7 @@ LIGHTS.TerrainDotsManager.prototype = {
             case 4:
             case 6:
             case 7:
-                this.paintCircles(4,true);
+                this.paintCircles(4, true);
                 break;
 
             case 5:

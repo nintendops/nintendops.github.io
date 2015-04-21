@@ -4,6 +4,8 @@
     var neu = neume();
     var baserhythm = 1;
     var baseRoot = 60;
+    var GL_TEMPO = 60;
+    var GL_TEMPOSC = 2;
     var baseScale = sc.Scale.major();
     var baseInstr = Piano;
     var rootFreq = baseRoot.midicps();
@@ -110,7 +112,7 @@
         }
         var start = new Date().getTime();
         this._dst = neu.Synth(Destination).start();
-        this._mml = new MMLEmitter(neu.context, this._mmlData);
+        this._mml = new MMLEmitter(neu.context, this._mmlData, GL_TEMPO);
         this._mml.tracks.forEach(function (track) {
             track.on("note", function (e) {
                 if (e.type !== "note") {
@@ -183,13 +185,13 @@
 
     ScalableSequencer.prototype.messinst = function (e) {
         switch (e) {
-            case 0:
+            case 1:
                 baseInstr = LittleSeren;
                 break;
-            case 1:
+            case 2:
                 baseInstr = SynthTone;
                 break;
-            case 2:
+            case 0:
                 baseInstr = Piano;
                 break;
         }
@@ -204,55 +206,57 @@
     };
 
     /*ScalableSequencer.prototype.slower = function () {
-        var onceS = true;
-        this._switchtime = neu.context.currentTime;
-        var offsetS;
-        this.convert_r = function (e) {
-            if (e.type !== "note") {
-                return;
-            }
-            var t = e.playbackTime;
-            if (onceS) {
-                offsetS = t;
-                onceS = false;
-                return t;
-            } else {
-                return 1.5 * t - 0.5 * offsetS;
-            }
-        };
-    };*/
+     var onceS = true;
+     this._switchtime = neu.context.currentTime;
+     var offsetS;
+     this.convert_r = function (e) {
+     if (e.type !== "note") {
+     return;
+     }
+     var t = e.playbackTime;
+     if (onceS) {
+     offsetS = t;
+     onceS = false;
+     return t;
+     } else {
+     return 1.5 * t - 0.5 * offsetS;
+     }
+     };
+     };*/
 
     ScalableSequencer.prototype.slower = function () {
-        this._mml.tracks.forEach(function (track) {
-           track._ttempo /= 1.25;
-            console.log( track._ttempo);
-        });
+        if (isPlaying) {
+            this._mml.tracks.forEach(function (track) {
+                track._ttempo /= GL_TEMPOSC;
+            });
+        }
     };
 
     ScalableSequencer.prototype.faster = function () {
-        this._mml.tracks.forEach(function (track) {
-            track._ttempo *= 1.25;
-            console.log( track._ttempo);
-        });
+        if (isPlaying) {
+            this._mml.tracks.forEach(function (track) {
+                track._ttempo *= GL_TEMPOSC;
+            });
+        }
     }
 
-    ScalableSequencer.prototype.normal = function () {
-        var delay = null;
-        var _this = this;
-        if (_this._switchtime) {
-            _this.convert_r = function(e){
-                return 0;
-            };
-            delay = (1-1/1.5)*(neu.context.currentTime - _this._switchtime);
-            console.log("delay: " + delay);
-            setTimeout(function(){
-                _this.convert_r = function (e) {
-                    return e.playbackTime;
-                };
-            }, delay*1000);
-        }
+    /*ScalableSequencer.prototype.normal = function () {
+     var delay = null;
+     var _this = this;
+     if (_this._switchtime) {
+     _this.convert_r = function(e){
+     return 0;
+     };
+     delay = (1-1/1.5)*(neu.context.currentTime - _this._switchtime);
+     console.log("delay: " + delay);
+     setTimeout(function(){
+     _this.convert_r = function (e) {
+     return e.playbackTime;
+     };
+     }, delay*1000);
+     }
 
-    };
+     };*/
 
 
     window.ScalableSequencer = ScalableSequencer;

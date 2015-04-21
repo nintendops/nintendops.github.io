@@ -32,7 +32,7 @@
             obj = Object.create(obj || {});
 
             var defaults = {
-                defaultTempo: 90,
+                defaultTempo: 60,
                 minTempo: 30,
                 maxTempo: 240,
                 defaultOctave: 5,
@@ -670,14 +670,14 @@
         var Config = require("./config");
         var Emitter = require("./emitter");
 
-        function MMLEmitter(audioContext, mml, config) {
+        function MMLEmitter(audioContext, mml, tt, config) {
             Emitter.call(this);
 
             config = Config.build(config);
 
             this.audioContext = audioContext;
             this.tracks = MMLParser.parse(mml).map(function (nodes) {
-                return new MMLTrack(this, nodes, config);
+                return new MMLTrack(this, nodes, tt, config);
             }, this);
             this._ended = 0;
             this._node = null;
@@ -1054,7 +1054,7 @@
             return a[WHEN] - b[WHEN];
         }
 
-        function MMLTrack(parent, nodes, config) {
+        function MMLTrack(parent, nodes,tt, config) {
             Emitter.call(this);
 
             this._pos = 0;
@@ -1062,7 +1062,7 @@
             this._shared = parent;
             this._config = config;
             this._nodes = MMLCompiler.compile(this, nodes);
-            this._ttempo = 90;
+            this._ttempo = tt;
             this._sched = [];
             this._currentTimeIncr = 0;
         }

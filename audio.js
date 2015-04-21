@@ -47,7 +47,7 @@ function seq_play() {
 function seq_ton() {
     if (app && isPlaying) {
         app.messinst(ins++);
-        if (ins > 2) {
+        if (ins > 1) {
             ins = 0;
         }
     }

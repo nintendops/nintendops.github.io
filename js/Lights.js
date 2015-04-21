@@ -1029,6 +1029,7 @@ LIGHTS.Director.prototype = {
             this.launch();
             this.music.faster();
             this.music.messinst(2);
+
         }
         if (this.music._e) {
             var midi = this.music._e.midi;
@@ -2393,7 +2394,7 @@ LIGHTS.Player.prototype = {
 
             // Steer
             //this.angle -= (-0.5*this.optics.dx) * deltaTime * this.velocity * 0.001
-            if (!((this.angle > 90 * deg2rad && this.optics.dx < 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx > 0))) {
+            if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
                 //this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
                 this.angle -= (-0.5*this.optics.dx) * deltaTime * 1200 * 0.001
             }
@@ -2413,9 +2414,9 @@ LIGHTS.Player.prototype = {
         }
 
         // Roll
-        if (!((this.angle > 90 * deg2rad && this.optics.dx < 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx > 0))) {
+        if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
             //this.roll -= (this.roll - (userMult * input.mouseX * 1200 * 0.001)) * deltaTime * 0.3 * this.turbo;
-            this.roll -= (this.roll - (userMult * (0.5*this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
+            this.roll -= (this.roll - (userMult * (-0.5*this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
 
         }
 

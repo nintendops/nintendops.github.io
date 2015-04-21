@@ -1029,7 +1029,6 @@ LIGHTS.Director.prototype = {
             this.launch();
             this.music.faster();
             this.music.messinst(2);
-
         }
         if (this.music._e) {
             var midi = this.music._e.midi;

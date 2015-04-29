@@ -955,6 +955,7 @@ LIGHTS.TimerEvent.prototype = {
                             this.music.stop();
                             var _this = this;
                             audio_init(function (newapp) {
+                                console.log("mario time = " +   LIGHTS.mariotime);
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
                                 setTimeout(seq_play, 100);

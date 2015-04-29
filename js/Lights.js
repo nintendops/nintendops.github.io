@@ -967,8 +967,6 @@ LIGHTS.TimerEvent.prototype = {
                                     this.phase = 0;
                                 }, 100);
                             }, "data/invention.mml", 105);
-                        } else {
-                            this.stop();
                         }
                     }
                     this.dir.once = false;
@@ -1295,8 +1293,8 @@ LIGHTS.Director.prototype = {
             }
         } else if (LIGHTS.mario && isPlaying){
             // Mario phase
-            console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
-            console.log("Time Event timer " + this.timerEvent.timer);
+            //console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
+            //console.log("Time Event timer " + this.timerEvent.timer);
             switch (this.timerEvent.phase) {
                 case 0:
                     if (!this.once) {

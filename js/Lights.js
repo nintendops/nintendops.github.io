@@ -944,7 +944,7 @@ LIGHTS.TimerEvent.prototype = {
                 }
                 if (this.timer >= this.bp[(this.track)][(this.phase)]) {
                     this.phase++;
-                    if (LIGHTS.debug) {
+                    if (!LIGHTS.debug) {
                         console.log("timer phase : " + this.phase);
                     }
                     if (this.phase >= this.bp[(this.track)].length) {
@@ -1287,7 +1287,6 @@ LIGHTS.Director.prototype = {
                     }
                     break;
 
-
             }
         } else {
             // Mario phase
@@ -1353,6 +1352,7 @@ LIGHTS.Director.prototype = {
                         LIGHTS.Music.phase.index = 23;
                         this.launch();
                     }
+                    break;
             }
         }
 
@@ -2738,7 +2738,7 @@ LIGHTS.Player.prototype = {
             //this.angle -= (-0.5*this.optics.dx) * deltaTime * this.velocity * 0.001
             if (!LIGHTS.debug) {
                 if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-                    this.angle -= (-0.7 * this.optics.dx) * deltaTime * 1200 * 0.001;
+                    this.angle -= (-1.5 * this.optics.dx) * deltaTime * 1200 * 0.001;
                 }
             } else {
                 if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {
@@ -2763,7 +2763,7 @@ LIGHTS.Player.prototype = {
         // Roll
         if (!LIGHTS.debug) {
             if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-                this.roll -= (this.roll - (userMult * (-0.5 * this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
+                this.roll -= (this.roll - (userMult * (-1.5 * this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
             }
         } else {
             if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {

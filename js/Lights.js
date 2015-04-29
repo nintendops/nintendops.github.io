@@ -906,9 +906,13 @@ LIGHTS.TimerEvent.prototype = {
     // static fields
     // class methods
     initialize: function (director) {
-        this.bp = [
+        /*this.bp = [
             [17, 24, 58, 102, 110],
             [127, 139, 155]
+        ];*/
+        this.bp = [
+            [7, 14, 18, 22, 25],
+            [37, 45, 55]
         ];
         this.dir = director;
         this.base = 0;
@@ -952,6 +956,7 @@ LIGHTS.TimerEvent.prototype = {
                             // to-do: play new audio
                             LIGHTS.mariotime = this.timer;
                             this.music.stop();
+                            isPlaying = false;
                             var _this = this;
                             audio_init(function (newapp) {
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
@@ -1352,7 +1357,6 @@ LIGHTS.Director.prototype = {
                         this.once = true;
                         LIGHTS.Music.phase.index = 23;
                         this.launch();
-                        this.stop();
                     }
                     break;
             }

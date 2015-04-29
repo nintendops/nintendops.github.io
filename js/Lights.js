@@ -957,8 +957,8 @@ LIGHTS.TimerEvent.prototype = {
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
                                 setTimeout(function () {
-                                    seq_play();
                                     LIGHTS.mario = true;
+                                    seq_play();
                                     this.phase = 0;
                                 }, 100);
                             }, "data/invention.mml", 105);
@@ -1350,9 +1350,9 @@ LIGHTS.Director.prototype = {
                 case 3:
                     if (!this.once) {
                         this.once = true;
-                        this.stop();
                         LIGHTS.Music.phase.index = 23;
                         this.launch();
+                        this.stop();
                     }
                     break;
             }

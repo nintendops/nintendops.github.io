@@ -906,13 +906,9 @@ LIGHTS.TimerEvent.prototype = {
     // static fields
     // class methods
     initialize: function (director) {
-        /*this.bp = [
+        this.bp = [
             [17, 24, 58, 102, 110],
             [127, 139, 155]
-        ];*/
-        this.bp = [
-            [7, 14, 18, 22, 25],
-            [37, 45, 55]
         ];
         this.dir = director;
         this.base = 0;

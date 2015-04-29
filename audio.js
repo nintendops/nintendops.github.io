@@ -18,7 +18,7 @@ function audio_init(callback, url, tempo) {
 
     load_url(url).then(function (data) {
         MML_DATA = data;
-        var new_app = new ScalableSequencer(MML_DATA,tempo);
+        var new_app = new ScalableSequencer(MML_DATA, tempo);
         app = new_app;
         scales = ScalableSequencer.scales;
         isPlaying = false;
@@ -29,7 +29,6 @@ function audio_init(callback, url, tempo) {
 }
 
 function seq_play() {
-    console.log("seq_play is called!!")
     if (MML_DATA && app) {
         if (!isPlaying) {
             app.start();

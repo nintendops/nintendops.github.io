@@ -1293,7 +1293,6 @@ LIGHTS.Director.prototype = {
             switch (this.timerEvent.phase) {
                 case 0:
                     if (!this.once) {
-                        console.log(this.timerEvent.timer);
                         this.reset_state();
                         LIGHTS.Music.phase.index = 8;
                         this.launch();
@@ -2738,9 +2737,7 @@ LIGHTS.Player.prototype = {
             //this.angle -= (-0.5*this.optics.dx) * deltaTime * this.velocity * 0.001
             if (!LIGHTS.debug) {
                 if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-                    //this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
-                    this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
-                    this.angle -= (-0.5 * this.optics.dx) * deltaTime * 1200 * 0.001
+                    this.angle -= (-0.7 * this.optics.dx) * deltaTime * 1200 * 0.001;
                 }
             } else {
                 if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {
@@ -2766,7 +2763,6 @@ LIGHTS.Player.prototype = {
         if (!LIGHTS.debug) {
             if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
                 this.roll -= (this.roll - (userMult * (-0.5 * this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
-                this.roll -= (this.roll - (userMult * input.mouseX * 1200 * 0.001)) * deltaTime * 0.3 * this.turbo;
             }
         } else {
             if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {
@@ -10968,7 +10964,6 @@ LIGHTS.TerrainDotsText.prototype = {
             pos = positions[2 * i];
             position = new THREE.Vector3(pos[0], pos[1], pos[2]);
             word = new LIGHTS.TerrainDotsWord(LIGHTS.config_tweets[i], position);
-            console.log(word);
             this.words.push(word);
         }
     },
@@ -11711,7 +11706,6 @@ LIGHTS.Stopwatch.prototype = {
     stop: function () {
 
         this.time = this.date.getTime() - this.startTime;
-        console.log(this.time);
     }
 }
 /**

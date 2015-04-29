@@ -942,7 +942,7 @@ LIGHTS.TimerEvent.prototype = {
                 }
                 if (this.timer >= this.bp[(this.track)][(this.phase)]) {
                     this.phase++;
-                    if (!LIGHTS.debug) {
+                    if (LIGHTS.debug) {
                         console.log("timer phase : " + this.phase);
                     }
                     if (this.phase >= this.bp[(this.track)].length) {
@@ -954,12 +954,12 @@ LIGHTS.TimerEvent.prototype = {
                             this.music.stop();
                             var _this = this;
                             audio_init(function (newapp) {
-                                console.log("mario time = " + LIGHTS.mariotime);
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
                                 setTimeout(function () {
                                     seq_play();
                                     LIGHTS.mario = true;
+                                    this.phase = 0;
                                 }, 100);
                             }, "data/invention.mml", 105);
                         } else {
@@ -1123,7 +1123,7 @@ LIGHTS.Director.prototype = {
          this.beatEvents.beat();
          }
          }*/
-        if (!LIGHTS.mario) {
+        if (!LIGHTS.mario && isPlaying) {
             switch (this.timerEvent.phase) {
                 case 0:
                     var outval = (this.player.angle - 0.7) / 0.77;

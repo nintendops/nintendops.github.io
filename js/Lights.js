@@ -910,7 +910,7 @@ LIGHTS.TimerEvent.prototype = {
     initialize: function (director) {
         this.bp = [
             [17, 24, 58, 102, 110],
-            [132, 146, 158]
+            [132, 146, 164]
         ];
         this.dir = director;
         this.base = 0;
@@ -2783,7 +2783,7 @@ LIGHTS.Player.prototype = {
 
         // Tilt
         if (!LIGHTS.debug) {
-            this.cameraTilt -= (this.cameraTilt + (userMult * (0.3 * this.optics.dy) * 800 * 0.0005) + this.tilt) * deltaTime * 2;
+            this.cameraTilt -= (this.cameraTilt + (userMult * (0.3 * this.optics.dy) * 100 * 0.0005) + this.tilt) * deltaTime * 2;
         } else {
             this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
         }

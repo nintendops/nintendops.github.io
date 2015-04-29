@@ -1035,7 +1035,7 @@ LIGHTS.Director.prototype = {
     stop: function () {
 
         this.active = false;
-        
+
         this.view.stop();
 
         // Stage
@@ -1208,7 +1208,8 @@ LIGHTS.Director.prototype = {
 
                     if (isPlaying && this.player.angle <= 5 * deg2rad && this.player.velocityTarget != 400) {
                         this.beatsControl = false;
-                        this.music.slower(1);
+                        this.music.faster(2);
+                        seq_scale(false);
                         this.music.messinst(0);
                         this.music._outVal = 0.2;
                         this.player.velocityTarget = 400;
@@ -1247,6 +1248,7 @@ LIGHTS.Director.prototype = {
                         this.beatEvents.displacement.active = true;
                     } else if (isPlaying && this.player.angle < 50 * deg2rad && this.player.angle > 5 * deg2rad && this.player.velocityTarget != 300) {
                         this.terrainDots.geometry.vertices = this.terrainDots.particleVertices;
+                        seq_scale(true);
                         if (!this.beatsControl) {
                             this.beatsControl = true;
                         }
@@ -1291,6 +1293,7 @@ LIGHTS.Director.prototype = {
             //console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
             //console.log("Time Event timer " + this.timerEvent.timer);
             switch (this.timerEvent.phase) {
+
                 case 0:
                     if (!this.once) {
                         this.reset_state();
@@ -1340,9 +1343,11 @@ LIGHTS.Director.prototype = {
                     if (isPlaying && this.player.angle <= 30 * deg2rad && (!this.phase_switch)) {
                         this.phase_switch = true;
                         seq_scale(false);
+                        this.music.slower(1.5);
                     } else if (isPlaying && this.player.angle > 30 * deg2rad && (this.phase_switch)) {
                         this.phase_switch = false;
                         seq_scale(true);
+                        this.music.faster(1.5);
                     }
                     break;
                 case 3:
@@ -2781,7 +2786,7 @@ LIGHTS.Player.prototype = {
 
         // Tilt
         if (!LIGHTS.debug) {
-            this.cameraTilt -= (this.cameraTilt + (userMult * (0.3 * this.optics.dy) * 100 * 0.0005) + this.tilt) * deltaTime * 2;
+            this.cameraTilt -= (this.cameraTilt + (userMult * (0.3 * this.optics.dy) * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
         } else {
             this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
         }

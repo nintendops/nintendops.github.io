@@ -957,7 +957,6 @@ LIGHTS.TimerEvent.prototype = {
                             audio_init(function (newapp) {
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
-                                LIGHTS.time = LIGHTS.mariotime;
                                 setTimeout(seq_play, 100);
                             }, "data/invention.mml", 105);
                         } else {
@@ -1289,7 +1288,6 @@ LIGHTS.Director.prototype = {
         } else {
             // Mario phase
             console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
-
             console.log("Time Event timer " + this.timerEvent.timer);
             switch (this.timerEvent.phase) {
                 case 0:

@@ -1035,8 +1035,7 @@ LIGHTS.Director.prototype = {
     stop: function () {
 
         this.active = false;
-        this.music.stop();
-
+        
         this.view.stop();
 
         // Stage

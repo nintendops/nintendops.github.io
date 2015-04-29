@@ -2764,7 +2764,7 @@ LIGHTS.Player.prototype = {
         // Roll
         if (!LIGHTS.debug) {
             if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-                this.roll -= (this.roll - (userMult * (-0.3 * this.optics.dx) * 800 * 0.001)) * deltaTime * 0.3;
+                this.roll -= (this.roll - (userMult * (-0.5 * this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
             }
         } else {
             if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {

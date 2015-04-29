@@ -727,7 +727,7 @@ LIGHTS.BeatEvents.prototype = {
     // _______________________________________________________________________________________ Beat
 
     beat: function () {
-       switch (LIGHTS.Music.phase.index) {
+        switch (LIGHTS.Music.phase.index) {
 
             case 1:
                 if (this.director.beatsControl) {
@@ -908,7 +908,7 @@ LIGHTS.TimerEvent.prototype = {
     initialize: function (director) {
         this.bp = [
             [17, 24, 58, 102, 110],
-            [145, 154, 169]
+            [127, 139, 155]
         ];
         this.dir = director;
         this.base = 0;
@@ -950,15 +950,17 @@ LIGHTS.TimerEvent.prototype = {
                             this.track++;
                             this.phase = 0;
                             // to-do: play new audio
-                            LIGHTS.mario = true;
                             LIGHTS.mariotime = this.timer;
                             this.music.stop();
                             var _this = this;
                             audio_init(function (newapp) {
-                                console.log("mario time = " +   LIGHTS.mariotime);
+                                console.log("mario time = " + LIGHTS.mariotime);
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
-                                setTimeout(seq_play, 100);
+                                setTimeout(function () {
+                                    seq_play();
+                                    LIGHTS.mario = true;
+                                }, 100);
                             }, "data/invention.mml", 105);
                         } else {
                             this.stop();

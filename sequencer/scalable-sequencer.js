@@ -1,21 +1,22 @@
 (function () {
     "use strict";
 
-    var neu = neume();
+    var neu = null;
+    var sc_context = null;
+    var sc_gain_node = null;
     var baserhythm = 1;
     var baseRoot = 60;
-    var GL_TEMPO = 60;
+    var GL_TEMPO;
     var GL_TEMPOSC = 2;
     var baseScale = sc.Scale.major();
     var baseInstr = Piano;
     var rootFreq = baseRoot.midicps();
 
 
-    function SynthTone($, freq, dur) {
-
-        return $("square", {freq: freq})
-            .$("xline", {start: 0.25, end: 0.001, dur: 0.25}).on("end", $.stop)
-            .$("out", {bus: 1});
+    function SynthTone($, freq) {
+        return $("square", { freq: freq })
+            .$("xline", { start: 0.1, end: 0.001, dur: 0.25 }).on("end", $.stop)
+            .$("out", { bus: 1 });
     }
 
     function LittleSeren($, freq, dur) {
@@ -39,7 +40,7 @@
         return $([1, 3, 9, 0.5].map(function (x, i) {
             return $("tri", {freq: freq * x});
         })).$("lpf", {freq: $("line", {start: freq * 2, end: freq * 0.75, dur: 1.5}), Q: 6})
-            .$("xline", {start: 0.5, end: 0.01, dur: dur * 5}).on("end", $.stop)
+            .$("xline", {start: 3.2, end: 0.01, dur: dur * 2}).on("end", $.stop)
             .$("out", {bus: 1});
     }
 
@@ -50,18 +51,36 @@
         ]);
     }
 
-    function ScalableSequencer(mmlData) {
+    function neu_init(){
+        sc_context = new AudioContext();
+        sc_gain_node = sc_context.createGain();
+        sc_gain_node.connect(sc_context.destination);
+        neu = new neume(sc_gain_node);
+    }
+
+    function ScalableSequencer(mmlData, tempo) {
+        var _this = this;
         this._mmlData = mmlData;
         this._mml = null;
         this._dst = null;
-        this._instr = baseInstr;
-        this._scale = sc.Scale.major();
-        this._e = null;
-        this._switchtime = null;
-        this.currentTime = 0;
+        GL_TEMPO = tempo;
+        neu_init();
+
+        this._syn = function (freq, e, t) {
+            neu.Synth(baseInstr, freq, e.duration).start(t).fadeOut("+" + _this._outVal,0.4);
+        };
         this.convert_r = function (e) {
             return e.playbackTime;
         };
+
+        // vars for run time
+        this._e = null;
+        this._switchtime = null;
+        this._outVal = 1;
+        this._gain = sc_gain_node;
+        this._instr = baseInstr;
+        this._scale = sc.Scale.major();
+        this.currentTime = 0;
     }
 
     ScalableSequencer.scales = (function () {
@@ -118,7 +137,7 @@
                 if (e.type !== "note") {
                     return;
                 }
-                _this.currentTime = (new Date().getTime() - start) / 1000;
+                _this.currentTime = neu.context.currentTime;
 
 
                 var t = _this.convert_r(e);
@@ -126,7 +145,7 @@
                 var key = e.midi - baseRoot;
                 var deg = baseScale.performKeyToDegree(key);
                 var freq = _this._scale.degreeToFreq2(deg, rootFreq, 0);
-                neu.Synth(baseInstr, freq, e.duration).start(t);
+                _this._syn(freq,e,t);
             });
         });
         var app = this;
@@ -168,20 +187,6 @@
         this._scale.tuning(tuning);
     }
 
-    ScalableSequencer.prototype.messrhythm = function (e) {
-        if (baserhythm + e < 1) {
-            return;
-        }
-        baserhythm += e;
-    }
-
-
-    ScalableSequencer.prototype.messroot = function (e) {
-        if (baseRoot + e < 1) {
-            return;
-        }
-        baseRoot += e;
-    }
 
     ScalableSequencer.prototype.messinst = function (e) {
         switch (e) {
@@ -193,6 +198,9 @@
                 break;
             case 0:
                 baseInstr = Piano;
+                break;
+            case 3:
+                baseInstr = Master;
                 break;
         }
     }
@@ -224,21 +232,25 @@
      };
      };*/
 
-    ScalableSequencer.prototype.slower = function () {
-        if (isPlaying) {
+    ScalableSequencer.prototype.slower = function (val) {
+        if (isPlaying && val > 0 && val < 3) {
             this._mml.tracks.forEach(function (track) {
-                track._ttempo /= GL_TEMPOSC;
+                track._ttempo = GL_TEMPO/val;
             });
         }
     };
 
-    ScalableSequencer.prototype.faster = function () {
-        if (isPlaying) {
+    ScalableSequencer.prototype.faster = function (val) {
+        if (isPlaying && val > 0 && val < 3) {
             this._mml.tracks.forEach(function (track) {
-                track._ttempo *= GL_TEMPOSC;
+                track._ttempo = GL_TEMPO*val;
             });
         }
-    }
+    };
+
+    ScalableSequencer.prototype.ChangeSyn = function(syn){
+        this._syn = syn;
+    };
 
     /*ScalableSequencer.prototype.normal = function () {
      var delay = null;

@@ -72,7 +72,7 @@ LIGHTS.releaseBuild = true;
 
 LIGHTS.time = 0;
 LIGHTS.deltaTime = 0;
-
+LIGHTS.debug = false;
 LIGHTS.colors = [0xFF1561, 0xFFF014, 0x14FF9D, 0x14D4FF, 0xFF9D14];
 LIGHTS.hues = [341 / 360, 56 / 360, 155 / 360, 191 / 360, 35 / 360];
 
@@ -98,17 +98,17 @@ function bind(scope, fn) {
 
 // _______________________________________________________________________________________ Lights
 
-LIGHTS.Lights = function (ot) {
+LIGHTS.Lights = function () {
 
     LIGHTS.Lights.instance = this;
-    this.initialize(ot);
+    this.initialize();
 };
 
 LIGHTS.Lights.prototype = {
 
     // _______________________________________________________________________________________ Constructor
 
-    initialize: function (ot) {
+    initialize: function () {
 
         if (Detector.webgl) {
 
@@ -117,7 +117,12 @@ LIGHTS.Lights.prototype = {
             this.gui = new LIGHTS.GUI(true);
             this.home = new LIGHTS.Home(this.renderManager, this.gui, bind(this, this.launchHome));
             this.loader = new LIGHTS.Loader(bind(this, this.launch));
-            this.ot = ot;
+            if (!LIGHTS.debug) {
+                this.ot = new OpticalTracker();
+                this.ot.start();
+            } else {
+                this.ot = null;
+            }
 
         }
         else {
@@ -231,8 +236,7 @@ LIGHTS.Loader.prototype = {
         audio_init(function () {
             LIGHTS.musicAudio = app;
             _this.loadTweets();
-        });
-
+        }, "data/invention2.mml", 60);
     },
 
     // _______________________________________________________________________________________ Load Tweets
@@ -242,6 +246,7 @@ LIGHTS.Loader.prototype = {
         var ok = false;
 
         LIGHTS.tweets = [];
+        LIGHTS.config_tweets = LIGHTS.Config.defaultTweets;
         this.isServerOk = false;
 
         if (!LIGHTS.releaseBuild) {
@@ -427,6 +432,7 @@ LIGHTS.BeatEvents.prototype = {
 
         this.director = director;
 
+
         this.terrain = director.terrain;
         this.displacement = director.terrain.displacement;
         this.tileManager = director.tileManager;
@@ -439,8 +445,7 @@ LIGHTS.BeatEvents.prototype = {
         this.terrainMesh = this.tileManager.terrainMesh;
         this.balls = this.tileManager.balls;
         this.cannons = this.tileManager.cannons;
-//        this.tubes = this.tileManager.tubes;
-
+//      this.tubes = this.tileManager.tubes;
         this.beatData = LIGHTS.Music.beatData;
         this.beats = 0;
     },
@@ -528,10 +533,15 @@ LIGHTS.BeatEvents.prototype = {
             case 1:
                 //this.terrainMesh.active = true;
                 //this.vox.start();
+                this.terrainMesh.launch();
                 this.nextBeat = 3;
                 break;
 
             case 2:
+                this.skybeat = true;
+                this.balls.active = true;
+                this.terrainMesh.active = true;
+                this.nextBeat = 0;
                 this.terrainMesh.launch();
                 this.terrainDots.launch();
                 this.balls.launch();
@@ -549,18 +559,25 @@ LIGHTS.BeatEvents.prototype = {
 
             case 4:
             case 5:
-            case 6:
                 this.terrainDots.launch();
                 this.balls.launch();
-//	            this.tileManager.apply();
+                this.tileManager.apply();
                 break;
 
+            case 6:
+                this.balls.launch();
+                this.terrainMesh.launch();
+                this.terrainDots.launch();
+                this.tileManager.apply();
+                this.player.launch();
+                this.skybox.mesh.visible = false;
+                this.terrainDots.active = false;
+                break;
             case 7: // B2
                 this.balls.launch();
                 this.terrainMesh.launch();
                 this.terrainDots.launch();
                 this.tileManager.apply();
-
                 this.player.launch();
                 this.skybox.mesh.visible = false;
                 break;
@@ -568,8 +585,10 @@ LIGHTS.BeatEvents.prototype = {
             case 8: // B2b
                 this.balls.launch();
                 this.terrainMesh.launch();
-                this.terrainDots.active = false;
+                //this.terrainDots.active = false;
+                //this.terrainDots.launch();
                 this.tileManager.apply();
+                this.player.launch();
                 break;
 
             case 9: // B2c
@@ -618,7 +637,6 @@ LIGHTS.BeatEvents.prototype = {
                 break;
 
             case 15: // D1
-                this.balls.launch();
                 this.terrainDots.launch();
                 this.terrainMesh.launch();
 //		        this.terrainDots.active = false;
@@ -636,7 +654,6 @@ LIGHTS.BeatEvents.prototype = {
                 this.tileManager.apply();
 
                 this.player.launch();
-                this.skybox.mesh.visible = false;
                 break;
 
             case 17: // C3
@@ -712,35 +729,50 @@ LIGHTS.BeatEvents.prototype = {
     // _______________________________________________________________________________________ Beat
 
     beat: function () {
-
-        switch (LIGHTS.Music.phase.index) {
+       switch (LIGHTS.Music.phase.index) {
 
             case 1:
-                if (this.nextBeat == 0) {
+                if (this.director.beatsControl) {
 
-                    this.balls.beat();
-                    this.terrainDots.beat();
-                }
-                else if (this.nextBeat == 1) {
-                    this.vox.launch();
+                    if (this.nextBeat == 0) {
+                        this.balls.beat();
+                        this.terrainDots.beat();
+                    }
+                    else if (this.nextBeat == 1) {
+                        //this.vox.launch();
+                        this.balls.launch();
+                        this.terrainDots.launch();
+                        this.terrainMesh.launch();
+                        this.balls.active = true;
+                        this.terrainMesh.active = true;
+                        this.tileManager.apply();
+                        //this.player.launch();
 
-                    this.balls.launch();
-                    this.terrainDots.launch();
-                    this.terrainMesh.launch();
-                    this.balls.active = true;
-                    this.terrainMesh.active = true;
-                    this.tileManager.apply();
-                    this.player.launch();
+                        this.nextBeat--;
+                    }
+                    else {
 
-                    this.nextBeat--;
-                }
-                else {
-
-                    this.nextBeat--;
+                        this.nextBeat--;
+                    }
+                } else {
+                    this.balls.active = false;
+                    this.terrainMesh.active = false;
+                    this.nextBeat = 3;
                 }
                 break;
 
             case 2:
+                if (!this.skybeat) {
+                    this.skybox.mesh.visible = true;
+                    this.skybeat = true;
+                } else {
+                    this.skybox.mesh.visible = false;
+                    this.skybeat = false;
+                }
+                this.balls.beat();
+                this.stars.beat();
+                this.terrainDots.beat();
+                break;
             case 3:
             case 4:
             case 5:
@@ -749,14 +781,14 @@ LIGHTS.BeatEvents.prototype = {
                 break;
 
             case 6:
-                this.balls.beat();
-                this.terrainDots.beat();
+                //this.balls.beat();
+                //this.terrainDots.beat();
                 this.terrainMesh.beat();
                 break;
 
             case 7: // B2
-                this.balls.beat();
-                this.terrainDots.beat();
+                //this.balls.beat();
+                //this.terrainDots.beat();
                 this.terrainMesh.beat();
                 break;
 
@@ -859,14 +891,87 @@ LIGHTS.Music = {
     },
 
     beatData: {
-        start: 7,
+        start: 0,
         go: 24,
-        end: 204,
+        end: 304,
         freq: 0.5,
         excluded: [40, 48, 55.5, 64, 70, 70.5, 71, 104, 112, 120, 128, 136, 150, 150.5, 151, 151.5, 152, 160, 168, 176, 184, 200],
         included: [69.75, 71.25, 71.375, 71.75, 149.75]
     }
 };
+
+LIGHTS.TimerEvent = function (director) {
+    this.initialize(director);
+};
+
+LIGHTS.TimerEvent.prototype = {
+    // static fields
+    // class methods
+    initialize: function (director) {
+        this.bp = [
+            [17, 24, 58, 102, 110],
+            [132, 146, 158]
+        ];
+        this.dir = director;
+        this.base = 0;
+        this.timer = 0;
+        this.phase = 0;
+        this.track = 0;
+        this.once = false;
+        this.music = LIGHTS.musicAudio;
+    },
+    start: function () {
+        // start the music here
+        LIGHTS.mario = false;
+        setTimeout(seq_play, 1000);
+    },
+    stop: function () {
+        if (isPlaying) {
+            seq_play();
+        }
+    },
+    update: function () {
+        // calculate elapsed time
+        if (this.music._e) {
+            if (!this.once) {
+                this.once = true;
+                this.base = this.music.currentTime;
+            } else {
+                if (!LIGHTS.mario) {
+                    this.timer = LIGHTS.musicAudio.currentTime - this.base;
+                } else {
+                    this.timer = 12 + LIGHTS.mariotime + LIGHTS.musicAudio.currentTime - this.base;
+                }
+                if (this.timer >= this.bp[(this.track)][(this.phase)]) {
+                    this.phase++;
+                    if (LIGHTS.debug) {
+                        console.log("timer phase : " + this.phase);
+                    }
+                    if (this.phase >= this.bp[(this.track)].length) {
+                        if (this.track < 1) {
+                            this.track++;
+                            this.phase = 0;
+                            // to-do: play new audio
+                            LIGHTS.mario = true;
+                            LIGHTS.mariotime = this.timer;
+                            this.music.stop();
+                            var _this = this;
+                            audio_init(function (newapp) {
+                                _this.dir.music = LIGHTS.musicAudio = newapp;
+                                _this.dir.music.messinst(2);
+                                LIGHTS.time = LIGHTS.mariotime;
+                                setTimeout(seq_play, 500);
+                            }, "data/invention.mml", 105);
+                        } else {
+                            this.stop();
+                        }
+                    }
+                    this.dir.once = false;
+                }
+            }
+        }
+    }
+}
 
 LIGHTS.Director = function (view) {
 
@@ -885,18 +990,20 @@ LIGHTS.Director.prototype = {
         this.player = new LIGHTS.Player(this);
         this.vox = new LIGHTS.Vox(this);
         this.materialCache = new LIGHTS.MaterialCache(this);
-
+        this, once = false;
         this.terrain = new LIGHTS.Terrain(this);
         this.tileManager = new LIGHTS.TileManager(this);
-
+        this.terrainDots = this.tileManager.terrainDots;
         this.skybox = new LIGHTS.Skybox(this);
 //		this.stars = new LIGHTS.Stars( this );
 
         // Events
         this.beatEvents = new LIGHTS.BeatEvents(this);
+        this.timerEvent = new LIGHTS.TimerEvent(this);
+        this.balls = this.beatEvents.balls;
         this.volumeEvents = new LIGHTS.VolumeEvents(this);
         this.spectrumEvents = new LIGHTS.SpectrumEvents(this);
-
+        this.beatsControl = false;
         this.music = LIGHTS.musicAudio;
 
     },
@@ -909,10 +1016,10 @@ LIGHTS.Director.prototype = {
         this.lastTime = new Date().getTime();
         this.phase_switch = true;
         // Music
-        this.music.currentTime = LIGHTS.time = LIGHTS.Music.startTime;
+        this.timerEvent.start();
+
         LIGHTS.deltaTime = 0;
         this.view.start();
-        setTimeout(seq_play, 1000);
         // Phase
         LIGHTS.Music.phase.index = 0;
         this.launch();
@@ -954,6 +1061,8 @@ LIGHTS.Director.prototype = {
 
     update: function () {
 
+        /*  console.log("timer: " + this.timerEvent.timer);
+         console.log("LIGHTS TIME: " + LIGHTS.time);*/
         if (!LIGHTS.releaseBuild && LIGHTS.Input.keySpace)
             LIGHTS.Lights.instance.playHome();
         var input = LIGHTS.Input;
@@ -980,12 +1089,13 @@ LIGHTS.Director.prototype = {
                 if (this.isFast) {
                     this.isFast = false;
                     // this.music.volume = LIGHTS.Music.mute ? 0 : 1;
-                    this.music.currentTime = LIGHTS.time + LIGHTS.deltaTime;
                 }
                 else {
 
                     // Sync with music
-                    LIGHTS.time = this.music.currentTime;
+
+                    LIGHTS.time = this.timerEvent.timer;
+
 
                     // Sync with time
 //			        LIGHTS.time += LIGHTS.deltaTime;
@@ -993,12 +1103,10 @@ LIGHTS.Director.prototype = {
             }
         }
         else {
-
-            LIGHTS.time = LIGHTS.deltaTime = this.music.currentTime;
+            LIGHTS.time = LIGHTS.deltaTime = this.timerEvent.timer;
         }
 
         LIGHTS.deltaTime = Math.min(LIGHTS.deltaTime, 0.2);
-
         this.lastTime = time;
         // Phase
         /*
@@ -1015,28 +1123,239 @@ LIGHTS.Director.prototype = {
          this.beatEvents.beat();
          }
          }*/
-        if (isPlaying && this.player.angle >= 30 * deg2rad && (!this.phase_switch)) {
-            this.phase_switch = true;
-            LIGHTS.Music.phase.index = 7;
-            this.launch();
-            this.music.slower();
-            this.music.messinst(0);
-            this.beatEvents.beat();
-            this.beatEvents.beat();
-        } else if (isPlaying && this.player.angle < 30 * deg2rad && (this.phase_switch)) {
-            this.phase_switch = false;
-            LIGHTS.Music.phase.index = 3;
-            this.launch();
-            this.music.faster();
-            this.music.messinst(2);
+        if (!LIGHTS.mario) {
+            switch (this.timerEvent.phase) {
+                case 0:
+                    var outval = (this.player.angle - 0.7) / 0.77;
+                    if (outval < 0) {
+                        outval = 0;
+                    }
+                    this.music._gain.gain.value = outval;
+                    if (!this.once) {
+                        this.once = true;
+                        this.beatsControl = false;
+                        LIGHTS.Music.phase.index = 1;
+                        this.launch();
+                    }
 
-        }
-        if (this.music._e) {
-            var midi = this.music._e.midi;
-            if (LIGHTS.Music.phase.index == 7 && midi >= 68 && midi < 71) {
-                this.beatEvents.beat();
+                    if (isPlaying && this.player.angle <= 50 * deg2rad && (!this.phase_switch)) {
+                        this.phase_switch = true;
+                        this.beatsControl = false;
+                    } else if (isPlaying && this.player.angle > 50 * deg2rad && (this.phase_switch)) {
+                        this.phase_switch = false;
+                        this.beatsControl = true;
+                    }
+                    break;
+                case 1:
+                    if (!this.once) {
+                        this.once = true;
+                        this.music._gain.gain.value = 1;
+                        this.music._outVal = 0.2;
+                        this.beatsControl = false;
+                        LIGHTS.Music.phase.index = 2;
+                        this.launch();
+                    }
+                    break;
+                case 2:
+                    if (!this.once) {
+                        this.phase_switch = false;
+                        this.once = true;
+                        LIGHTS.Music.phase.index = 3;
+                        this.music.faster(1.25);
+                        this.music.messinst(2);
+                        this.launch();
+                    }
+                    var outval = (this.player.angle - 0.5) / 1.17;
+                    if (outval < 0) {
+                        outval = 0;
+                    }
+                    if (outval > 1) {
+                        outval = 1;
+                    }
+                    this.music._outVal = outval;
+                    this.terrainDots.colorscale = outval;
+                    if (isPlaying && this.player.angle <= 30 * deg2rad && (!this.phase_switch)) {
+                        this.phase_switch = true;
+                        this.beatEvents.displacement.active = false;
+                        seq_scale(false);
+                        this.music.messinst(2);
+                    } else if (isPlaying && this.player.angle > 30 * deg2rad && (this.phase_switch)) {
+                        this.phase_switch = false;
+                        this.beatEvents.displacement.active = true;
+                        seq_scale(true);
+                        this.music.messinst(0);
+                    }
+                    break;
+                case 3:
+                    if (!this.once) {
+                        this.once = true;
+                        this.phase_switch = false;
+                        this.music._gain.gain.value = 1;
+                        this.music._outVal = 0.2;
+                        this.music.messinst(0);
+                        this.beatEvents.displacement.active = false;
+                        LIGHTS.Music.phase.index = 5;
+                        this.launch();
+                    }
+
+                    var outval = (this.player.angle - 0.5) / 1.17;
+                    if (outval < 0) {
+                        outval = 0;
+                    }
+                    if (outval > 1) {
+                        outval = 1;
+                    }
+                    this.terrainDots.colorscale = outval;
+
+                    if (isPlaying && this.player.angle <= 5 * deg2rad && this.player.velocityTarget != 400) {
+                        this.beatsControl = false;
+                        this.music.slower(1);
+                        this.music.messinst(0);
+                        this.music._outVal = 0.2;
+                        this.player.velocityTarget = 400;
+                        this.player.fovTarget = 30;
+                        this.player.altitudeTarget = 150;
+                        this.player.tween(4);
+
+                        if (this.balls.state != 1) {
+                            this.balls.resetState(0);
+                            this.balls.activateFat(true);
+                            this.balls.setFat(phi, 1);
+                            this.balls.geometries.setSphereBlend(false);
+                            this.balls.setSphereMultiplyAdditive(1.0, 1.0);
+                            this.nextBeat = 1;
+                        }
+
+                        this.balls.beats = 0;
+                        this.balls.unselect();
+                        this.balls.setState(1, true);
+                        this.balls.setGrow(0, 0);
+                        this.balls.setGrow(1, 1);
+                        this.balls.geometries.setSphereBlend(false);
+                    } else if (isPlaying && this.player.angle > 50 * deg2rad && this.player.velocityTarget != 800) {
+                        this.terrainDots.geometry.vertices = this.terrainDots.terrainVertices;
+                        if (this.beatsControl) {
+                            this.beatsControl = false;
+                        }
+                        this.balls.setState(2, true);
+                        this.music.faster(1.25);
+                        this.music.messinst(3);
+                        this.music._outVal = 0.1;
+                        this.player.velocityTarget = 800;
+                        this.player.altitudeTarget = 180;
+                        this.player.fovTarget = 45;
+                        this.player.tween(4);
+                        this.beatEvents.displacement.active = true;
+                    } else if (isPlaying && this.player.angle < 50 * deg2rad && this.player.angle > 5 * deg2rad && this.player.velocityTarget != 300) {
+                        this.terrainDots.geometry.vertices = this.terrainDots.particleVertices;
+                        if (!this.beatsControl) {
+                            this.beatsControl = true;
+                        }
+                        this.beatEvents.displacement.active = false;
+                        if (this.balls.beats == 0) {
+                            this.balls.setSphereAdditive(1.0);
+                            this.balls.setSphereAdditive(0.0);
+                            this.balls.removeSpheres();
+                            this.balls.geometries.setSphereBlend(true);
+                        }
+                        if (this.balls.state == 2) {
+                            LIGHTS.Music.phase.index = 5;
+                            this.launch();
+                            this.balls.setState(3, true);
+                        }
+                        //this.balls.removeSpheres();
+                        this.player.fovTarget = 45;
+                        this.player.altitudeTarget = 120;
+                        this.player.velocityTarget = 300;
+                        this.player.tween(4);
+                        this.music.messinst(0);
+                        this.music._outVal = 0.2;
+                        this.music.slower(1);
+                    }
+                    break;
+                case 4:
+                    if (!this.once) {
+                        if (this.balls.state < 3) {
+                            this.balls.setState(3, true);
+                        }
+                        this.terrainDots.geometry.vertices = this.terrainDots.terrainVertices;
+                        this.reset_state();
+                        LIGHTS.Music.phase.index = 6;
+                        this.launch();
+                        this.audio_fadeout(this);
+                    }
+                    break;
+
+
+            }
+        } else {
+            // Mario phase
+            switch (this.timerEvent.phase) {
+                case 0:
+                    if (!this.once) {
+                        console.log(this.timerEvent.timer);
+                        this.reset_state();
+                        LIGHTS.Music.phase.index = 8;
+                        this.launch();
+                        if (isPlaying && this.player.angle <= 30 * deg2rad && (!this.phase_switch)) {
+                            this.phase_switch = true;
+                            seq_scale(false);
+                        } else if (isPlaying && this.player.angle > 30 * deg2rad && (this.phase_switch)) {
+                            this.phase_switch = false;
+                            seq_scale(true);
+                        }
+                    }
+                    break;
+                case 1:
+                    if (!this.once) {
+                        this.once = true;
+                        seq_scale(true);
+                        this.player.velocityTarget = 1100;
+                        LIGHTS.Music.phase.index = 11;
+                        this.player.fovTarget = 25;
+                        this.player.altitudeTarget = 110;
+                        this.music.faster(1.25);
+                        this.launch();
+                    }
+                    if (isPlaying && this.player.angle <= 30 * deg2rad && (!this.phase_switch)) {
+                        this.phase_switch = true;
+                        seq_scale(false);
+                    } else if (isPlaying && this.player.angle > 30 * deg2rad && (this.phase_switch)) {
+                        this.phase_switch = false;
+                        seq_scale(true);
+                    }
+                    break;
+                case 2:
+                    if (!this.once) {
+                        this.once = true;
+                        seq_scale(true);
+                        this.phase_switch = false;
+                        this.player.velocityTarget = 1500;
+                        this.player.altitudeTarget = 140;
+                        this.player.fovTarget = 30;
+                        this.player.tiltTarget = rad90 * 0.1;
+                        LIGHTS.Music.phase.index = 17;
+                        this.music.faster(1.5);
+                        this.launch();
+                    }
+                    if (isPlaying && this.player.angle <= 30 * deg2rad && (!this.phase_switch)) {
+                        this.phase_switch = true;
+                        seq_scale(false);
+                    } else if (isPlaying && this.player.angle > 30 * deg2rad && (this.phase_switch)) {
+                        this.phase_switch = false;
+                        seq_scale(true);
+                    }
+                    break;
+                case 3:
+                    if (!this.once) {
+                        this.once = true;
+                        this.stop();
+                        LIGHTS.Music.phase.index = 23;
+                        this.launch();
+                    }
             }
         }
+
 
         // Stage
         this.player.update();
@@ -1046,6 +1365,7 @@ LIGHTS.Director.prototype = {
 
         // Events
         this.beatEvents.update();
+        this.timerEvent.update();
         this.volumeEvents.update();
         this.spectrumEvents.update();
 
@@ -1065,9 +1385,31 @@ LIGHTS.Director.prototype = {
 
         if (LIGHTS.releaseBuild)
             console.log("Phase: " + LIGHTS.Music.phase.index);
+    },
+
+    reset_state: function () {
+        this.once = true;
+        this.phase_switch = false;
+        this.player.velocityTarget = 400;
+        this.player.fovTarget = 25;
+        this.player.altitudeTarget = 100;
+        this.player.tween(1);
+        this.music._gain.gain.value = 1;
+        this.music._outVal = 0.2;
+        this.music.messinst(0);
+        this.music.slower(1);
+        this.beatEvents.displacement.active = false;
+    },
+
+    audio_fadeout: function (_this) {
+        if (_this.music._gain.gain.value > 0 && !LIGHTS.mario) {
+            _this.music._gain.gain.value -= 0.1;
+            setTimeout(function () {
+                _this.audio_fadeout(_this);
+            }, 700);
+        }
     }
 };
-
 LIGHTS.SpectrumEvents = function (director) {
 
     this.initialize(director);
@@ -2294,7 +2636,7 @@ LIGHTS.Player.prototype = {
     initialize: function (director) {
 
         this.director = director;
-        this.optics = LIGHTS.Lights.instance.ot;
+        this.optics = LIGHTS.Lights.instance.ot || null;
         this.isCamera = !LIGHTS.View.prototype.options.debugView;
 
         if (this.isCamera) {
@@ -2394,9 +2736,15 @@ LIGHTS.Player.prototype = {
 
             // Steer
             //this.angle -= (-0.5*this.optics.dx) * deltaTime * this.velocity * 0.001
-            if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-                //this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
-                this.angle -= (-0.5*this.optics.dx) * deltaTime * 1200 * 0.001
+            if (!LIGHTS.debug) {
+                if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
+                    //this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
+                    this.angle -= (-0.5 * this.optics.dx) * deltaTime * 1200 * 0.001
+                }
+            } else {
+                if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {
+                    this.angle -= input.mouseX * this.turbo * deltaTime * 1200 * 0.001;
+                }
             }
         }
 
@@ -2414,13 +2762,17 @@ LIGHTS.Player.prototype = {
         }
 
         // Roll
-        if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
-            //this.roll -= (this.roll - (userMult * input.mouseX * 1200 * 0.001)) * deltaTime * 0.3 * this.turbo;
-            this.roll -= (this.roll - (userMult * (-0.5*this.optics.dx) * 1200 * 0.001)) * deltaTime * 0.3;
-
+        if (!LIGHTS.debug) {
+            if (!((this.angle > 90 * deg2rad && this.optics.dx > 0) || (this.angle < (-1 * 30 * deg2rad) && this.optics.dx < 0))) {
+                this.roll -= (this.roll - (userMult * (-0.3 * this.optics.dx) * 800 * 0.001)) * deltaTime * 0.3;
+            }
+        } else {
+            if (!((this.angle > 90 * deg2rad && input.mouseX < 0) || (this.angle < (-1 * 30 * deg2rad) && input.mouseX > 0))) {
+                this.roll -= (this.roll - (userMult * input.mouseX * 1200 * 0.001)) * deltaTime * 0.3 * this.turbo;
+                //this.velocity = 1200
+            }
         }
 
-        //this.roll -= (this.roll - (userMult * (1*this.optics.dx) * this.velocity * 0.001)) * deltaTime * 0.3;
         this.rollAxis.sub(this.cameraPosition, this.targetPosition);
         this.rollAxis.normalize();
         this.cameraUp.x = this.cameraUp.z = 0;
@@ -2430,8 +2782,11 @@ LIGHTS.Player.prototype = {
         this.camera.matrix.lookAt(this.cameraPosition, this.targetPosition, this.cameraUp);
 
         // Tilt
-        this.cameraTilt -= (this.cameraTilt + (userMult * (0.5 *this.optics.dy) * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
-        //this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
+        if (!LIGHTS.debug) {
+            this.cameraTilt -= (this.cameraTilt + (userMult * (0.3 * this.optics.dy) * 800 * 0.0005) + this.tilt) * deltaTime * 2;
+        } else {
+            this.cameraTilt -= (this.cameraTilt + (userMult * input.mouseY * 1200 * 0.0005) + this.tilt) * deltaTime * 2;
+        }
         this.auxMatrix.setRotationX(this.cameraTilt);
         this.camera.matrix.multiply(this.camera.matrix, this.auxMatrix);
 
@@ -2492,28 +2847,23 @@ LIGHTS.Player.prototype = {
                     this.fovTarget = 30;
                     this.altitudeTarget = 110;
 //					this.tiltTarget = rad90 * 0.15;
-                    this.velocityTarget = 2100;
+                    this.velocityTarget = 800;
                     this.tween(4);
                     break;
 
                 case 7:
                     this.altitudeTarget = 80;
                     this.tiltTarget = rad90 * 0.1;
-                    this.velocityTarget = 400;
                     this.tween(2);
                     break;
 
                 case 9:
                     this.altitudeTarget = 120;
                     this.tiltTarget = rad90 * 0.15;
-                    this.velocityTarget = 200;
                     this.tween(4);
                     break;
 
                 case 11:
-                    this.altitudeTarget = 80;
-                    this.tiltTarget = rad90 * 0.1;
-                    this.velocityTarget = 250;
                     this.tween(4);
                     break;
 
@@ -2521,7 +2871,6 @@ LIGHTS.Player.prototype = {
                     this.altitudeTarget = 200;
                     this.fovTarget = 40;
                     this.tiltTarget = rad90 * 0.3;
-                    this.velocityTarget = 200;
                     this.tween(4);
                     break;
 
@@ -2529,7 +2878,6 @@ LIGHTS.Player.prototype = {
                     this.altitudeTarget = 200;
                     this.fovTarget = 40;
                     this.tiltTarget = rad90 * 0.2;
-                    this.velocityTarget = 200;
                     this.tween(8);
                     break;
 
@@ -2542,17 +2890,12 @@ LIGHTS.Player.prototype = {
                     break;
 
                 case 17:
-                    this.altitudeTarget = 90;
-                    this.fovTarget = 30;
-                    this.tiltTarget = rad90 * 0.1;
-                    this.velocityTarget = 200;
                     this.tween(2);
                     break;
 
                 case 18:
                     this.altitudeTarget = 130;
                     this.tiltTarget = rad90 * 0.15;
-                    this.velocityTarget = 200;
                     this.tween(4);
                     break;
 
@@ -2671,19 +3014,19 @@ LIGHTS.Skybox = function (director) {
 LIGHTS.Skybox.prototype = {
 
     // _______________________________________________________________________________________ Constructor
+    //rgbColors: [[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 1, 0], [0, 1, 1], [1, 0, 1]],
 
     initialize: function (director) {
 
         this.view = director.view;
         this.cameraPosition = director.player.camera.position;
-
+        this.terraindot = director.tileManager.terrainDots;
         var geometry, material, texture;
 
         // Geometry
         geometry = new LIGHTS.CapsuleGeometry(1280, 1280, 640, 16, [0, 1], true, 640, 8, false);
         THREE.MeshUtils.translateVertices(geometry, 0, -640, 0);
         THREE.MeshUtils.transformUVs(geometry, 0, 1, 1, -1);
-
         // Texture
         texture = new THREE.Texture(LIGHTS.images.skybox);
         texture.needsUpdate = true;
@@ -2717,7 +3060,6 @@ LIGHTS.Skybox.prototype = {
     update: function () {
 
         this.mesh.position.copy(this.cameraPosition);
-
 //	    var colorPhase = (Math.sin( LIGHTS.time * rad360 * 0.5 ) + 1) * 0.5;
 
         var colorPhase = (LIGHTS.time * 0.3) % 2;
@@ -2725,7 +3067,14 @@ LIGHTS.Skybox.prototype = {
         if (colorPhase > 1)
             colorPhase = 1 - (colorPhase - 1);
 
-        this.color.setHSV(0.6 + colorPhase * 0.35, 1, 1);
+        if (this.terraindot.skycolor) {
+            this.color.r = this.terraindot.skycolor.r;
+            this.color.g = this.terraindot.skycolor.g;
+            this.color.b = this.terraindot.skycolor.b;
+        } else {
+            this.color.setHSV(0.6 + colorPhase * 0.35, 1, 1);
+        }
+        //this.color.setHSV(0.6 + colorPhase * 0.35, 1, 1);
 //	    this.color.r *= 2;
 //	    this.color.g *= 2;
 //	    this.color.b *= 2;
@@ -4541,7 +4890,6 @@ LIGHTS.MapLines.prototype = {
     // _______________________________________________________________________________________ Update
 
     drawLines: function (count) {
-
         this.drawCount = count;
 
         var i, line, scale, size, posMax;
@@ -4957,7 +5305,8 @@ LIGHTS.TerrainDisplacement.prototype = {
     update: function () {
 
         switch (LIGHTS.Music.phase.index) {
-
+            case 3:
+            case 5:
             case 15:
             case 21:
                 this.updateSpectrum();
@@ -5826,7 +6175,6 @@ LIGHTS.TileManager.prototype = {
     },
 
     apply: function () {
-
         for (var i in this.containerTable)
             this.updateTiles(this.containerTable[i]);
     },
@@ -7801,7 +8149,6 @@ LIGHTS.BallsManager.prototype = {
                 break;
 
             case 4:
-            case 6:
                 this.setSphereAdditive(1.0);
                 this.setFat(phi, 1);
                 this.nextBeat = 1;
@@ -7811,16 +8158,22 @@ LIGHTS.BallsManager.prototype = {
                 this.changeFat();
                 this.nextBeat = 2;
                 break;
-
-            case 7: // B2
+            case 6:
                 this.unselect();
                 this.setSphereMultiply(0.0);
                 this.activateFat(false);
+                break;
+            case 7: // B2
+                //this.unselect();
+                //this.setSphereMultiply(0.0);
+                //this.activateFat(false);
                 this.nextBeat = 5;
                 break;
 
             case 8:
                 this.unselect();
+                this.setSphereAdditive(1.0);
+                this.setFat(phi, 1);
                 this.setSphereMultiplyAdditive(1.0, 1.0);
                 this.nextBeat = 1;
                 break;
@@ -7942,7 +8295,6 @@ LIGHTS.BallsManager.prototype = {
 
             case 3:
             case 4:
-            case 6:
             case 7:
                 if (this.nextBeat == 0) {
 
@@ -7959,29 +8311,33 @@ LIGHTS.BallsManager.prototype = {
                 break;
 
             case 5:
-                if (this.nextBeat == 0) {
-
-                    this.changeFat();
+                if (this.director.player.velocityTarget == 400) {
+                    if (this.beats > 1 && this.beats % 2 == 0)
+                        this.changeGrow();
                 }
-                else if (this.nextBeat == 1) {
+                else if (this.director.player.velocity == 800) {
+                    if (this.nextBeat == 0) {
 
-                    this.setFat(0, 1);
-                    this.setFat(1, 0.5);
-                    this.setSphereAdditive(0.0);
+                        this.changeFat();
+                    }
+                    else if (this.nextBeat == 1) {
+
+                        this.setFat(0, 1);
+                        this.setFat(1, 0.5);
+                        this.setSphereAdditive(0.0);
 //			        geo.resetStemColors();
-                    this.nextBeat--;
-                }
-                else {
-
-                    this.setFat(phi, 1);
-                    this.setSphereAdditive(1.0);
+                        this.nextBeat--;
+                    }
+                    else {
+                        this.setFat(phi, 1);
+                        this.setSphereAdditive(1.0);
 //			        geo.setStemColors( 0xFFFFFF );
-                    this.nextBeat--;
+                        this.nextBeat--;
+                    }
                 }
                 break;
             case 8:
                 if (this.nextBeat == 1) {
-
                     this.setSphereAdditive(0.0);
                     this.nextBeat--;
                 }
@@ -8970,7 +9326,6 @@ LIGHTS.StarManager.prototype = {
     },
 
     beat: function () {
-
         this.arpTimes = this.arpKeys[this.beats++ % 2];
         this.nextArpIndex = 0;
         this.nextArpTime = this.arpTimes[0];
@@ -9432,7 +9787,7 @@ LIGHTS.TerrainDotsManager.prototype = {
         this.director = director;
         this.terrainPlane = director.terrain.terrainPlane;
         this.displacement = director.terrain.displacement;
-
+        this.wordlaunched = false;
         // Geometry
         var x, y, i, dot, pv, tv;
 
@@ -9482,7 +9837,8 @@ LIGHTS.TerrainDotsManager.prototype = {
             blending: THREE.AdditiveBlending,
             transparent: true
         });
-
+        this.colorscale = 0.5;
+        this.skycolor = null;
         this.beatTime = 0.1;
         this.allPainted = 1;
 
@@ -9514,24 +9870,27 @@ LIGHTS.TerrainDotsManager.prototype = {
                 break;
 
             case 3:
+                // coloring terrain dots
                 this.paintAll(2, true);
                 break;
 
             case 4:
-            case 6:
             case 12:
                 this.paintAll(1, true);
                 break;
 
             case 5:
+                this.paintAll(2, true);
                 this.resetParticles();
                 this.setupWords();
                 this.launchWords();
-                this.geometry.vertices = this.particleVertices;
+                this.geometry.vertices = this.terrainVertices;
+                //this.geometry.vertices = this.particleVertices;
                 this.dirtyVertices = true;
                 this.nextBeat = 1;
                 break;
 
+            case 6:
             case 7:
                 this.paintAll(0);
                 break;
@@ -9610,17 +9969,15 @@ LIGHTS.TerrainDotsManager.prototype = {
             case 4:
             case 6:
             case 7:
-                this.paintCircles(4, true);
+                this.paintCircles(32);
                 break;
 
             case 5:
                 if (this.nextBeat == 0) {
-
                     this.paintCircles(32);
                 }
                 else {
-
-                    this.paintAll(1, true);
+                    this.paintAll(2, true);
                     this.nextBeat--;
                 }
                 break;
@@ -9678,16 +10035,27 @@ LIGHTS.TerrainDotsManager.prototype = {
                 break;
 
             case 3:
+                this.paintDarker(true, false, 1);
+                break;
             case 4:
                 this.paintDarker(true, false, 1);
                 break;
 
             case 5:
-            case 6:
-                this.moveToWords();
+
+                if (this.director.beatsControl) {
+                    this.moveToWords();
+                } else if (this.wordlaunched) {
+                    this.explodeWords();
+                }
                 this.paintDarker(false, true, 0.5);
                 break;
 
+            case 6:
+                if (this.wordlaunched) {
+                    this.explodeWords();
+                }
+                break;
             case 7:
                 this.paintDarker(true, false, 4);
                 this.updateMovingCircles();
@@ -9813,7 +10181,8 @@ LIGHTS.TerrainDotsManager.prototype = {
 
             if (isColor) {
 
-                rgb = this.rgbColors[Math.floor(Math.random() * this.rgbColors.length)];
+                // rgb = this.rgbColors[Math.floor(Math.random() * this.rgbColors.length)];
+                rgb = this.rgbColors[Math.floor(this.colorscale * this.rgbColors.length)];
                 colorR = rgb[0];
                 colorG = rgb[1];
                 colorB = rgb[2];
@@ -9857,6 +10226,7 @@ LIGHTS.TerrainDotsManager.prototype = {
                             color.g += colorG;
                             color.b += colorB;
                         }
+                        this.skycolor = color;
                     }
                 }
             }
@@ -10170,7 +10540,7 @@ LIGHTS.TerrainDotsManager.prototype = {
     },
 
     launchWords: function () {
-
+        this.wordlaunched = true;
         var dots = this.dots,
             il = dots.length,
             i, dot;
@@ -10189,37 +10559,39 @@ LIGHTS.TerrainDotsManager.prototype = {
 
     moveToWords: function () {
 
-        this.text.update();
+        if (this.text) {
+            this.text.update();
 
-        var deltaTime = LIGHTS.deltaTime,
-            dots = this.dots,
-            il = dots.length,
-            i, dot, ease, position, wordPosition;
+            var deltaTime = LIGHTS.deltaTime,
+                dots = this.dots,
+                il = dots.length,
+                i, dot, ease, position, wordPosition;
 
-        for (i = 0; i < il; i++) {
+            for (i = 0; i < il; i++) {
 
-            dot = dots[i];
+                dot = dots[i];
 
-            if (dot.isText) {
+                if (dot.isText) {
 
-                if (dot.delay < 0) {
+                    if (dot.delay < 0) {
 
-                    position = dot.position;
-                    wordPosition = dot.wordPosition;
-                    ease = deltaTime * dot.ease;
+                        position = dot.position;
+                        wordPosition = dot.wordPosition;
+                        ease = deltaTime * dot.ease;
 
-                    position.x -= (position.x - wordPosition.x) * ease;
-                    position.y -= (position.y - wordPosition.y) * ease;
-                    position.z -= (position.z - wordPosition.z) * ease;
+                        position.x -= (position.x - wordPosition.x) * ease;
+                        position.y -= (position.y - wordPosition.y) * ease;
+                        position.z -= (position.z - wordPosition.z) * ease;
 
-                    dot.ease -= (dot.ease - 10) * ease * 0.1;
+                        dot.ease -= (dot.ease - 10) * ease * 0.1;
+                    }
+                    else
+                        dot.delay -= deltaTime;
                 }
-                else
-                    dot.delay -= deltaTime;
             }
-        }
 
-        this.dirtyVertices = true;
+            this.dirtyVertices = true;
+        }
     },
 
     explodeWords: function () {
@@ -10589,11 +10961,12 @@ LIGHTS.TerrainDotsText.prototype = {
         positions.push([s3, 160, s2]);
         positions.push([s3, 170, s3]);
 
-        for (i = 0; i < LIGHTS.tweets.length; i++) {
+        for (i = 0; i < LIGHTS.config_tweets.length; i++) {
 
-            pos = positions[i];
+            pos = positions[2 * i];
             position = new THREE.Vector3(pos[0], pos[1], pos[2]);
-            word = new LIGHTS.TerrainDotsWord('@' + LIGHTS.tweets[i], position);
+            word = new LIGHTS.TerrainDotsWord(LIGHTS.config_tweets[i], position);
+            console.log(word);
             this.words.push(word);
         }
     },
@@ -10850,12 +11223,14 @@ LIGHTS.TerrainMeshManager.prototype = {
             case 3:
                 break;
 
+            case 6:
             case 7:
                 this.material.reflectivity = 0;
                 this.material.color.setHex(0xFFFFFF);
                 break;
 
             case 8:
+                //this.material.color.setHex(0xFFFFFF);
                 this.material.reflectivity = 0.15;
                 break;
 
@@ -10933,11 +11308,11 @@ LIGHTS.TerrainMeshManager.prototype = {
         switch (LIGHTS.Music.phase.index) {
 
             case 7:
-                this.mapLines.drawLines(4);
+                this.mapLines.drawLines(1);
                 break;
 
             case 8:
-                this.mapLines.drawLines(8);
+                this.mapLines.drawLines(24);
                 break;
 
             case 9:
@@ -11010,11 +11385,10 @@ LIGHTS.TerrainMeshManager.prototype = {
             case 3:
             case 4:
             case 5:
-            case 6:
                 this.mapGlows.update();
                 this.terrainMap.update();
                 break;
-
+            case 6:
             case 7:
             case 8:
             case 9:

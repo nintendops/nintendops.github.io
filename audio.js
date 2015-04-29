@@ -14,19 +14,18 @@ var load_url = function (url) {
     });
 };
 
-function audio_init(callback) {
+function audio_init(callback, url, tempo) {
 
-    load_url("data/invention2.mml").then(function (data) {
+    load_url(url).then(function (data) {
         MML_DATA = data;
-        app = new ScalableSequencer(MML_DATA);
+        var new_app = new ScalableSequencer(MML_DATA,tempo);
+        app = new_app;
         scales = ScalableSequencer.scales;
         isPlaying = false;
         ins = 2;
         countscale = 0;
-        callback();
+        callback(new_app);
     });
-
-
 }
 
 function seq_play() {

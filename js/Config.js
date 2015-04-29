@@ -64,16 +64,9 @@ LIGHTS.Config = {
 
 
 	defaultTweets: [
-
-		'HelloEnjoy',
-		'CherrytreeRec',
-		'PolydorRecords',
-		'Interscope',
-		'EllieGoulding',
-		'CherrytreeRec',
-		'PolydorRecords',
-		'Interscope',
-		'EllieGoulding'
+		'Thanks for coming to Maze Day!',
+		' " V " ',
+		'Hope you enjoy!'
 	],
 
 	defaultAvatars: [

@@ -171,7 +171,6 @@
     };
 
     ScalableSequencer.prototype.setScale = function (name) {
-        console.log("setting scale to " + name);
         var tuning = this._scale.tuning();
         this._scale = sc.ScaleInfo.at(name);
         this._scale.tuning(tuning);
@@ -233,7 +232,7 @@
      };*/
 
     ScalableSequencer.prototype.slower = function (val) {
-        if (isPlaying && val > 0 && val < 3) {
+        if (this._mml && isPlaying && val > 0 && val < 3) {
             this._mml.tracks.forEach(function (track) {
                 track._ttempo = GL_TEMPO/val;
             });
@@ -241,7 +240,7 @@
     };
 
     ScalableSequencer.prototype.faster = function (val) {
-        if (isPlaying && val > 0 && val < 3) {
+        if (this._mml && isPlaying && val > 0 && val < 3) {
             this._mml.tracks.forEach(function (track) {
                 track._ttempo = GL_TEMPO*val;
             });

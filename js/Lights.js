@@ -910,7 +910,7 @@ LIGHTS.TimerEvent.prototype = {
     initialize: function (director) {
         this.bp = [
             [17, 24, 58, 102, 110],
-            [140, 150, 172]
+            [145, 154, 169]
         ];
         this.dir = director;
         this.base = 0;
@@ -1384,7 +1384,7 @@ LIGHTS.Director.prototype = {
         this.beatEvents.launch();
 
         if (LIGHTS.releaseBuild)
-            console.log("Phase: " + LIGHTS.Music.phase.index);
+            console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
     },
 
     reset_state: function () {

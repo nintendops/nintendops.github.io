@@ -910,7 +910,7 @@ LIGHTS.TimerEvent.prototype = {
     initialize: function (director) {
         this.bp = [
             [17, 24, 58, 102, 110],
-            [132, 146, 164]
+            [140, 150, 172]
         ];
         this.dir = director;
         this.base = 0;
@@ -1192,6 +1192,7 @@ LIGHTS.Director.prototype = {
                         this.phase_switch = false;
                         this.music._gain.gain.value = 1;
                         this.music._outVal = 0.2;
+                        seq_scale(true);
                         this.music.messinst(0);
                         this.beatEvents.displacement.active = false;
                         LIGHTS.Music.phase.index = 5;

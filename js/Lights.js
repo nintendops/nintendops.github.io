@@ -930,7 +930,7 @@ LIGHTS.TimerEvent.prototype = {
     },
     update: function () {
         // calculate elapsed time
-        if (this.music._e) {
+        if (isPlaying && this.music._e) {
             if (!this.once) {
                 this.once = true;
                 this.base = this.music.currentTime;
@@ -1288,7 +1288,7 @@ LIGHTS.Director.prototype = {
                     break;
 
             }
-        } else {
+        } else if (LIGHTS.mario && isPlaying){
             // Mario phase
             console.log("Phase: " + LIGHTS.Music.phase.index + " at time " + LIGHTS.time);
             console.log("Time Event timer " + this.timerEvent.timer);

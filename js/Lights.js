@@ -609,7 +609,6 @@ LIGHTS.BeatEvents.prototype = {
                 this.terrainDots.active = true;
                 this.terrainDots.launch();
                 this.tileManager.apply();
-
                 this.skybox.mesh.visible = true;
                 break;
 
@@ -699,7 +698,6 @@ LIGHTS.BeatEvents.prototype = {
                 this.tileManager.apply();
 
                 this.displacement.active = true;
-                this.director.spectrumEvents.start(1 / 4000, 4);
                 this.player.launch();
                 break;
 
@@ -960,7 +958,7 @@ LIGHTS.TimerEvent.prototype = {
                                 _this.dir.music = LIGHTS.musicAudio = newapp;
                                 _this.dir.music.messinst(2);
                                 LIGHTS.time = LIGHTS.mariotime;
-                                setTimeout(seq_play, 500);
+                                setTimeout(seq_play, 100);
                             }, "data/invention.mml", 105);
                         } else {
                             this.stop();
